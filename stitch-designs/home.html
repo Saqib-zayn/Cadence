@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cadence - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#474743",
+                        "green-bg": "#e8f0e8",
+                        "tertiary-fixed-dim": "#cbc5c6",
+                        "drawer-overlay": "rgba(0, 0, 0, 0.3)",
+                        "surface-container-low": "#f7f3f2",
+                        "text-primary": "#1a1a18",
+                        "secondary": "#5e5f5a",
+                        "text-muted": "#a0a09a",
+                        "error-container": "#ffdad6",
+                        "outline": "#777771",
+                        "on-tertiary": "#ffffff",
+                        "border": "#e2e2de",
+                        "secondary-fixed": "#e4e2dc",
+                        "nav-icon-inactive": "#a0a09a",
+                        "surface-container-high": "#ebe7e6",
+                        "red-text": "#8b3a3a",
+                        "on-primary-fixed-variant": "#474744",
+                        "surface-bright": "#fdf8f7",
+                        "amber-text": "#7a5c1e",
+                        "surface-container": "#f1edec",
+                        "on-secondary-fixed": "#1b1c18",
+                        "tertiary-container": "#1d1b1c",
+                        "tertiary": "#000000",
+                        "on-tertiary-container": "#878384",
+                        "primary-fixed": "#e5e2de",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#c9c6c3",
+                        "btn-secondary-text": "#1a1a18",
+                        "surface-raised": "#eaeae6",
+                        "on-error": "#ffffff",
+                        "green-mark": "#c8dfc8",
+                        "surface": "#f0f0ed",
+                        "green-text": "#3a6b3a",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e5e2e1",
+                        "red-mark": "#f0c8c8",
+                        "drawer-bg": "#f0f0ed",
+                        "primary": "#000000",
+                        "btn-secondary-bg": "#eaeae6",
+                        "surface-container-lowest": "#ffffff",
+                        "btn-primary-bg": "#1a1a18",
+                        "on-primary-fixed": "#1c1c1a",
+                        "tertiary-fixed": "#e7e1e2",
+                        "on-tertiary-fixed": "#1d1b1c",
+                        "on-tertiary-fixed-variant": "#494647",
+                        "btn-disabled": "#d4d4d0",
+                        "background": "#f8f8f6",
+                        "red-bg": "#f0e8e8",
+                        "outline-variant": "#c8c7bf",
+                        "on-background": "#1c1b1b",
+                        "on-secondary-container": "#61615c",
+                        "inverse-on-surface": "#f4f0ef",
+                        "inverse-surface": "#313030",
+                        "amber-bg": "#f0ebe0",
+                        "surface-dim": "#ddd9d8",
+                        "amber-mark": "#e8d5a8",
+                        "btn-primary-text": "#f8f8f6",
+                        "nav-icon-active": "#1a1a18",
+                        "on-primary": "#ffffff",
+                        "on-surface-variant": "#474741",
+                        "secondary-container": "#deddd7",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#c9c6c3",
+                        "surface-tint": "#5f5e5c",
+                        "text-secondary": "#6b6b66",
+                        "surface-variant": "#e5e2e1",
+                        "on-surface": "#1c1b1b",
+                        "on-primary-container": "#858481",
+                        "primary-container": "#1c1c1a",
+                        "secondary-fixed-dim": "#c8c7c0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "desktop-padding": "80px",
+                        "space-1": "4px",
+                        "space-3": "12px",
+                        "space-6": "24px",
+                        "space-8": "32px",
+                        "space-5": "20px",
+                        "space-10": "40px",
+                        "space-2": "8px",
+                        "space-4": "16px",
+                        "mobile-padding": "24px",
+                        "tablet-padding": "48px"
+                    },
+                    "fontFamily": {
+                        "heading-2": ["Inter"],
+                        "heading-1": ["Inter"],
+                        "display": ["Inter"],
+                        "body-medium": ["Inter"],
+                        "caption": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    "fontSize": {
+                        "heading-2": ["20px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "heading-1": ["28px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "display": ["56px", { "lineHeight": "1.0", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-medium": ["16px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "500" }],
+                        "caption": ["12px", { "lineHeight": "1.4", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "body": ["16px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }],
+                        "label": ["13px", { "lineHeight": "1.4", "letterSpacing": "0.02em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background min-h-screen flex flex-col font-body text-body text-text-primary antialiased">
+<!-- Top AppBar (Mobile/Tablet) -->
+<header class="md:hidden flex items-center px-6 w-full max-w-screen-2xl mx-auto bg-transparent h-[52px]">
+<button aria-label="Open menu" class="text-nav-icon-inactive hover:bg-zinc-100 transition-colors p-2 rounded-full -ml-2">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow flex flex-col items-center justify-center px-mobile-padding md:px-tablet-padding lg:px-desktop-padding max-w-3xl mx-auto w-full gap-space-8 py-space-10">
+<!-- App Identity -->
+<div class="text-center flex flex-col gap-space-2">
+<h1 class="font-heading-1 text-heading-1 text-text-primary">Cadence</h1>
+<p class="font-body text-body text-text-muted">Find your cadence.</p>
+</div>
+<!-- Status Row -->
+<div class="flex items-center gap-space-3">
+<div class="bg-surface-raised rounded-full px-space-3 py-space-1 flex items-center gap-space-2 font-label text-label text-text-primary">
+<span class="text-amber-text text-lg opacity-80"><span class="material-symbols-outlined text-[18px] text-amber-text">local_fire_department</span></span> 12 day streak
+            </div>
+<div class="bg-surface-raised rounded-full px-space-3 py-space-1 font-label text-label text-text-primary">
+                47 rounds
+            </div>
+</div>
+<!-- Weekly Challenge Card -->
+<div class="w-full bg-surface border border-border rounded-lg shadow-sm p-space-5 flex items-center justify-between">
+<div class="flex flex-col gap-space-1">
+<div class="flex items-center gap-space-1 text-text-muted font-caption text-caption">
+<span class="material-symbols-outlined text-[16px]">bolt</span>
+                    This week
+                </div>
+<div class="font-body-medium text-body-medium text-text-primary">JUXTAPOSITION</div>
+</div>
+<div class="bg-surface-raised rounded-full px-space-3 py-space-1 font-caption text-caption text-text-muted">
+                847 rounds played
+            </div>
+</div>
+<!-- Hero Action & Quick Stats -->
+<div class="w-full flex flex-col items-center gap-space-4 mt-space-4">
+<button class="w-full md:w-[280px] h-[64px] bg-btn-primary-bg text-btn-primary-text font-body-medium text-body-medium hover:opacity-90 transition-opacity rounded-xl">
+                Start Round
+            </button>
+<div class="flex items-center gap-space-2">
+<span class="bg-amber-bg text-amber-text px-space-2 py-0.5 font-caption text-caption font-medium rounded-none">Medium</span>
+<span class="text-text-muted font-caption text-caption">·</span>
+<span class="text-text-muted font-caption text-caption">Interview</span>
+</div>
+</div>
+</main>
+<!-- Desktop Navigation Drawer (Persistent Sidebar) -->
+<nav class="hidden md:flex fixed inset-y-0 left-0 z-50 flex-col p-6 overflow-y-auto h-full w-[260px] border-r border-border bg-drawer-bg">
+<div class="text-xl font-bold tracking-tight text-text-primary mb-8">
+            Cadence
+        </div>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-2 bg-surface-raised text-text-primary rounded-lg font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="home" data-weight="fill" style="font-variation-settings: 'FILL' 1;">home</span>
+                Home
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-text-muted hover:text-text-primary hover:bg-surface-raised rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="mic">mic</span>
+                Sessions
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-text-muted hover:text-text-primary hover:bg-surface-raised rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-text-muted hover:text-text-primary hover:bg-surface-raised rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+</div>
+</nav>
+</body></html>

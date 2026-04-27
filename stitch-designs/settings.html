@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cadence - Settings</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-secondary-fixed": "#1b1c18",
+                "on-primary": "#ffffff",
+                "secondary-container": "#deddd7",
+                "on-error": "#ffffff",
+                "green-text": "#3a6b3a",
+                "surface-container-high": "#ebe7e6",
+                "secondary": "#5e5f5a",
+                "on-tertiary": "#ffffff",
+                "error-container": "#ffdad6",
+                "text-primary": "#1a1a18",
+                "inverse-surface": "#313030",
+                "surface": "#f0f0ed",
+                "amber-text": "#7a5c1e",
+                "on-secondary-container": "#61615c",
+                "on-background": "#1c1b1b",
+                "text-secondary": "#6b6b66",
+                "amber-bg": "#f0ebe0",
+                "primary-fixed-dim": "#c9c6c3",
+                "on-tertiary-fixed": "#1d1b1c",
+                "on-error-container": "#93000a",
+                "surface-container-lowest": "#ffffff",
+                "primary-container": "#1c1c1a",
+                "surface-container-highest": "#e5e2e1",
+                "outline-variant": "#c8c7bf",
+                "drawer-bg": "#f0f0ed",
+                "surface-raised": "#eaeae6",
+                "background": "#f8f8f6",
+                "on-tertiary-container": "#878384",
+                "on-secondary-fixed-variant": "#474743",
+                "green-mark": "#c8dfc8",
+                "surface-variant": "#e5e2e1",
+                "surface-container": "#f1edec",
+                "secondary-fixed-dim": "#c8c7c0",
+                "nav-icon-inactive": "#a0a09a",
+                "surface-tint": "#5f5e5c",
+                "on-primary-container": "#858481",
+                "btn-secondary-text": "#1a1a18",
+                "tertiary-fixed-dim": "#cbc5c6",
+                "surface-bright": "#fdf8f7",
+                "tertiary-container": "#1d1b1c",
+                "red-bg": "#f0e8e8",
+                "on-primary-fixed": "#1c1c1a",
+                "on-surface": "#1c1b1b",
+                "on-surface-variant": "#474741",
+                "primary-fixed": "#e5e2de",
+                "btn-primary-text": "#f8f8f6",
+                "border": "#e2e2de",
+                "inverse-on-surface": "#f4f0ef",
+                "green-bg": "#e8f0e8",
+                "on-secondary": "#ffffff",
+                "btn-disabled": "#d4d4d0",
+                "tertiary-fixed": "#e7e1e2",
+                "primary": "#000000",
+                "btn-primary-bg": "#1a1a18",
+                "tertiary": "#000000",
+                "btn-secondary-bg": "#eaeae6",
+                "inverse-primary": "#c9c6c3",
+                "text-muted": "#a0a09a",
+                "drawer-overlay": "rgba(0, 0, 0, 0.3)",
+                "surface-container-low": "#f7f3f2",
+                "red-text": "#8b3a3a",
+                "outline": "#777771",
+                "surface-dim": "#ddd9d8",
+                "amber-mark": "#e8d5a8",
+                "secondary-fixed": "#e4e2dc",
+                "on-tertiary-fixed-variant": "#494647",
+                "on-primary-fixed-variant": "#474744",
+                "red-mark": "#f0c8c8",
+                "error": "#ba1a1a"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "md": "0.375rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "space-5": "20px",
+                "space-1": "4px",
+                "space-8": "32px",
+                "space-2": "8px",
+                "space-10": "40px",
+                "padding-tablet": "48px",
+                "space-6": "24px",
+                "padding-mobile": "24px",
+                "space-4": "16px",
+                "padding-desktop": "80px",
+                "space-3": "12px"
+        },
+        "fontFamily": {
+                "display": [
+                        "Inter"
+                ],
+                "body-medium": [
+                        "Inter"
+                ],
+                "heading-2": [
+                        "Inter"
+                ],
+                "label": [
+                        "Inter"
+                ],
+                "caption": [
+                        "Inter"
+                ],
+                "heading-1": [
+                        "Inter"
+                ],
+                "body": [
+                        "Inter"
+                ]
+        },
+        "fontSize": {
+                "display": [
+                        "56px",
+                        {
+                                "lineHeight": "1.0",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-medium": [
+                        "16px",
+                        {
+                                "lineHeight": "1.6",
+                                "letterSpacing": "0",
+                                "fontWeight": "500"
+                        }
+                ],
+                "heading-2": [
+                        "20px",
+                        {
+                                "lineHeight": "1.3",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label": [
+                        "13px",
+                        {
+                                "lineHeight": "1.4",
+                                "letterSpacing": "0.02em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "caption": [
+                        "12px",
+                        {
+                                "lineHeight": "1.4",
+                                "letterSpacing": "0.02em",
+                                "fontWeight": "400"
+                        }
+                ],
+                "heading-1": [
+                        "28px",
+                        {
+                                "lineHeight": "1.2",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body": [
+                        "16px",
+                        {
+                                "lineHeight": "1.6",
+                                "letterSpacing": "0",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-text-primary min-h-screen font-body-medium flex flex-col md:flex-row w-full overflow-x-hidden">
+<!-- Desktop Sidebar Navigation -->
+<aside class="hidden md:flex flex-col h-full w-[260px] border-r border-[#e2e2de] dark:border-[#2a2a28] fixed inset-y-0 left-0 z-[60] p-4 bg-[#f0f0ed] dark:bg-[#1a1a18]">
+<div class="mb-space-6 px-space-2 text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+      Cadence
+    </div>
+<nav class="flex-1 space-y-space-1">
+<a class="flex items-center px-space-3 py-space-2 rounded-DEFAULT text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all font-sans text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined mr-space-3 text-[20px]" data-icon="dashboard">dashboard</span>
+        Dashboard
+      </a>
+<a class="flex items-center px-space-3 py-space-2 rounded-DEFAULT text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all font-sans text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined mr-space-3 text-[20px]" data-icon="timer">timer</span>
+        Sessions
+      </a>
+<a class="flex items-center px-space-3 py-space-2 rounded-DEFAULT text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all font-sans text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined mr-space-3 text-[20px]" data-icon="analytics">analytics</span>
+        Analysis
+      </a>
+<a class="flex items-center px-space-3 py-space-2 rounded-DEFAULT bg-neutral-200 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-50 font-semibold hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all font-sans text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined mr-space-3 text-[20px]" data-icon="settings">settings</span>
+        Settings
+      </a>
+</nav>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 w-full md:pl-[260px] flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="flex items-center h-[52px] px-4 w-full bg-transparent docked full-width top-0 flat no shadows no-border md:hidden">
+<button class="text-nav-icon-inactive scale-95 duration-150 hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50 transition-colors p-1 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</header>
+<main class="flex-1 w-full px-padding-mobile md:px-padding-desktop py-space-6 flex flex-col gap-space-8 max-w-4xl mx-auto mt-0 md:mt-[52px]">
+<!-- ROUND Section -->
+<section class="flex flex-col gap-space-2">
+<h2 class="font-caption text-caption text-text-muted uppercase tracking-[0.08em] pl-space-1">ROUND</h2>
+<div class="bg-surface rounded-lg shadow-sm p-space-5 border border-border flex flex-col gap-space-6">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-4">
+<div class="flex flex-col gap-1">
+<span class="font-body-medium text-body-medium text-text-primary">Context</span>
+<span class="font-caption text-caption text-text-muted">The scenario you speak to</span>
+</div>
+<div class="flex p-1 bg-surface-raised rounded-DEFAULT border border-border w-full md:w-auto overflow-x-auto">
+<button class="flex-1 md:flex-none px-space-3 py-1.5 rounded-DEFAULT bg-white text-text-primary font-label text-label shadow-sm border border-border/50 whitespace-nowrap">Interview</button>
+<button class="flex-1 md:flex-none px-space-3 py-1.5 rounded-DEFAULT text-text-secondary font-label text-label hover:bg-white/50 transition-colors whitespace-nowrap">Casual</button>
+<button class="flex-1 md:flex-none px-space-3 py-1.5 rounded-DEFAULT text-text-secondary font-label text-label hover:bg-white/50 transition-colors whitespace-nowrap">Presentation</button>
+<button class="flex-1 md:flex-none px-space-3 py-1.5 rounded-DEFAULT text-text-secondary font-label text-label hover:bg-white/50 transition-colors whitespace-nowrap">Random</button>
+</div>
+</div>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-4">
+<div class="flex flex-col gap-1">
+<span class="font-body-medium text-body-medium text-text-primary">Difficulty</span>
+<span class="font-caption text-caption text-text-muted">Words you'll be given</span>
+</div>
+<div class="flex p-1 bg-surface-raised rounded-DEFAULT border border-border w-full md:w-auto overflow-x-auto">
+<button class="flex-1 md:flex-none px-space-3 py-1.5 rounded-DEFAULT text-text-secondary font-label text-label hover:bg-white/50 transition-colors whitespace-nowrap">Easy</button>
+<button class="flex-1 md:flex-none px-space-3 py-1.5 rounded-DEFAULT bg-white text-text-primary font-label text-label shadow-sm border border-border/50 whitespace-nowrap">Medium</button>
+<button class="flex-1 md:flex-none px-space-3 py-1.5 rounded-DEFAULT text-text-secondary font-label text-label hover:bg-white/50 transition-colors whitespace-nowrap">Hard</button>
+<button class="flex-1 md:flex-none px-space-3 py-1.5 rounded-DEFAULT text-text-secondary font-label text-label hover:bg-white/50 transition-colors whitespace-nowrap">Mixed</button>
+</div>
+</div>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-4">
+<div class="flex flex-col gap-1">
+<span class="font-body-medium text-body-medium text-text-primary">Challenge mode</span>
+<span class="font-caption text-caption text-text-muted">Word appears after you hit record</span>
+</div>
+<button aria-pressed="true" class="w-12 h-6 rounded-full bg-btn-primary-bg relative flex items-center shrink-0">
+<span class="w-5 h-5 bg-white rounded-full absolute right-0.5 shadow-sm"></span>
+</button>
+</div>
+</div>
+</section>
+<!-- Unlimited rounds Section -->
+<section class="flex flex-col gap-space-2">
+<h2 class="font-caption text-caption text-text-muted uppercase tracking-[0.08em] pl-space-1">Unlimited rounds</h2>
+<div class="bg-surface rounded-lg shadow-sm p-space-5 border border-border flex flex-col gap-space-4">
+<div class="flex flex-col gap-1">
+<span class="font-body-medium text-body-medium text-text-primary">Groq API key</span>
+<span class="font-caption text-caption text-text-muted">Removes the daily limit. Your key stays on your device.</span>
+</div>
+<input class="w-full bg-surface-raised rounded-md p-space-3 font-body text-body text-text-primary placeholder:text-text-muted border-none focus:ring-2 focus:ring-border" placeholder="gsk_..." type="password"/>
+<a class="font-caption text-caption text-green-text hover:underline w-fit" href="#">Get a free key at groq.com →</a>
+</div>
+</section>
+<!-- DATA Section -->
+<section class="flex flex-col gap-space-2">
+<h2 class="font-caption text-caption text-text-muted uppercase tracking-[0.08em] pl-space-1">DATA</h2>
+<div class="bg-surface rounded-lg shadow-sm p-space-5 border border-border">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-4">
+<div class="flex flex-col gap-1">
+<span class="font-body-medium text-body-medium text-text-primary">Clear all rounds</span>
+<span class="font-caption text-caption text-text-muted">Permanently deletes your scores</span>
+</div>
+<button class="px-space-4 py-space-2 bg-surface-raised border border-border rounded-DEFAULT font-label text-label text-red-text hover:bg-red-bg transition-colors shrink-0">
+              Clear
+            </button>
+</div>
+</div>
+</section>
+<!-- About Section -->
+<section class="mt-auto pt-space-8 border-t border-border flex flex-col gap-1 items-center md:items-start text-center md:text-left">
+<span class="font-body-medium text-body-medium text-text-secondary">Cadence</span>
+<span class="font-caption text-caption text-text-muted">Version 1.0.0</span>
+</section>
+</main>
+</div>
+</body></html>

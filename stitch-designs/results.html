@@ -1,0 +1,240 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Cadence Results</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "red-bg": "#f0e8e8",
+                        "drawer-bg": "#f0f0ed",
+                        "surface-bright": "#fdf8f7",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#c9c6c3",
+                        "on-surface-variant": "#474741",
+                        "on-secondary-container": "#61615c",
+                        "on-tertiary": "#ffffff",
+                        "border": "#e2e2de",
+                        "on-primary": "#ffffff",
+                        "btn-secondary-text": "#1a1a18",
+                        "inverse-on-surface": "#f4f0ef",
+                        "inverse-primary": "#c9c6c3",
+                        "red-mark": "#f0c8c8",
+                        "on-tertiary-container": "#878384",
+                        "surface": "#f0f0ed",
+                        "btn-primary-text": "#f8f8f6",
+                        "nav-icon-inactive": "#a0a09a",
+                        "amber-bg": "#f0ebe0",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e5e2e1",
+                        "outline": "#777771",
+                        "secondary-container": "#deddd7",
+                        "on-tertiary-fixed-variant": "#494647",
+                        "secondary-fixed-dim": "#c8c7c0",
+                        "green-text": "#3a6b3a",
+                        "btn-secondary-bg": "#eaeae6",
+                        "green-bg": "#e8f0e8",
+                        "text-muted": "#a0a09a",
+                        "primary": "#000000",
+                        "surface-container-high": "#ebe7e6",
+                        "text-secondary": "#6b6b66",
+                        "on-primary-container": "#858481",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#1c1b1b",
+                        "on-primary-fixed-variant": "#474744",
+                        "on-secondary-fixed": "#1b1c18",
+                        "amber-text": "#7a5c1e",
+                        "surface-tint": "#5f5e5c",
+                        "amber-mark": "#e8d5a8",
+                        "secondary-fixed": "#e4e2dc",
+                        "tertiary-fixed-dim": "#cbc5c6",
+                        "inverse-surface": "#313030",
+                        "primary-container": "#1c1c1a",
+                        "drawer-overlay": "rgba(0, 0, 0, 0.3)",
+                        "red-text": "#8b3a3a",
+                        "tertiary": "#000000",
+                        "surface-container": "#f1edec",
+                        "surface-container-low": "#f7f3f2",
+                        "surface-raised": "#eaeae6",
+                        "btn-primary-bg": "#1a1a18",
+                        "background": "#f8f8f6",
+                        "surface-dim": "#ddd9d8",
+                        "on-tertiary-fixed": "#1d1b1c",
+                        "green-mark": "#c8dfc8",
+                        "on-primary-fixed": "#1c1c1a",
+                        "primary-fixed": "#e5e2de",
+                        "on-background": "#1c1b1b",
+                        "tertiary-container": "#1d1b1c",
+                        "on-secondary-fixed-variant": "#474743",
+                        "on-secondary": "#ffffff",
+                        "secondary": "#5e5f5a",
+                        "outline-variant": "#c8c7bf",
+                        "surface-variant": "#e5e2e1",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#e7e1e2",
+                        "text-primary": "#1a1a18",
+                        "btn-disabled": "#d4d4d0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "padding-desktop": "80px",
+                        "space-6": "24px",
+                        "space-2": "8px",
+                        "space-3": "12px",
+                        "space-8": "32px",
+                        "space-5": "20px",
+                        "padding-mobile": "24px",
+                        "space-10": "40px",
+                        "space-1": "4px",
+                        "space-4": "16px",
+                        "padding-tablet": "48px"
+                    },
+                    "fontFamily": {
+                        "display": ["Inter"],
+                        "caption": ["Inter"],
+                        "label": ["Inter"],
+                        "body": ["Inter"],
+                        "body-medium": ["Inter"],
+                        "heading-1": ["Inter"],
+                        "heading-2": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display": ["56px", { "lineHeight": "1.0", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "caption": ["12px", { "lineHeight": "1.4", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "label": ["13px", { "lineHeight": "1.4", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "body": ["16px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }],
+                        "body-medium": ["16px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "500" }],
+                        "heading-1": ["28px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "heading-2": ["20px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #f8f8f6; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-body text-on-background min-h-screen">
+<!-- Navigation Drawer (Desktop Sidebar / Mobile Drawer) -->
+<nav class="hidden md:flex flex-col pt-4 h-full w-[260px] border-r border-[#e2e2de] dark:border-stone-800 bg-[#f0f0ed] dark:bg-stone-900 fixed inset-y-0 left-0 z-50">
+<div class="px-space-6 mb-space-8 flex items-center justify-between">
+<span class="font-bold text-lg text-stone-900 dark:text-stone-100" style="">Cadence</span>
+</div>
+<div class="px-space-6 flex items-center gap-space-3 mb-space-8">
+<div class="w-10 h-10 rounded-full bg-surface-raised flex items-center justify-center overflow-hidden">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="Alex Speaker profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_qIOCUnu1CMSIxCF3ZPdE_ggp4kRTIJAUowJmCLcho-Yrwy5nOEu4EdmFR7fVidnClesByUBzmYAk3fK8yCvfgoGB22iQa2wNEDfkLRQAppZvT68BbflXYSR89SYKxUTq3SZSYhabshB00i7CL9UtTncU0Ko56wC1jDoCYdN2hfB8y8sCkfhIK-avArjUE0CmXobT7diMpk2-IrW1MWNarNWf5phMtdPHjdiC6f9FV1wCCUlD9fetUmSrWKShcRIoNIAvj_yoLNs" style="">
+</div>
+<div>
+<div class="font-sans text-sm font-medium text-stone-900 dark:text-stone-100" style="">Alex Speaker</div>
+<div class="font-sans text-xs text-stone-500 dark:text-stone-400" style="">Pro Member</div>
+</div>
+</div>
+<ul class="flex flex-col gap-space-2 px-space-4">
+<li class="" style=""><a class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg font-sans text-sm font-medium text-stone-500 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-800 transition-all" href="#" style=""><span class="material-symbols-outlined" data-icon="dashboard" style="">dashboard</span>Dashboard</a></li>
+<li class="" style=""><a class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg font-sans text-sm font-medium text-stone-900 dark:text-stone-100 font-bold border-r-2 border-stone-900 dark:border-stone-100 bg-surface-raised hover:bg-stone-200 dark:hover:bg-stone-800 transition-all" href="#" style=""><span class="material-symbols-outlined" data-icon="mic_none" style="">mic_none</span>Practice Sessions</a></li>
+<li class="" style=""><a class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg font-sans text-sm font-medium text-stone-500 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-800 transition-all" href="#" style=""><span class="material-symbols-outlined" data-icon="auto_stories" style="">auto_stories</span>Vocabulary Hub</a></li>
+<li class="" style=""><a class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg font-sans text-sm font-medium text-stone-500 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-800 transition-all" href="#" style=""><span class="material-symbols-outlined" data-icon="bar_chart" style="">bar_chart</span>Progress Analytics</a></li>
+<li class="" style=""><a class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg font-sans text-sm font-medium text-stone-500 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-800 transition-all" href="#" style=""><span class="material-symbols-outlined" data-icon="settings" style="">settings</span>Settings</a></li>
+</ul>
+</nav>
+<!-- Main Content Area -->
+<main class="md:ml-[260px] min-h-screen flex flex-col">
+<!-- Top App Bar -->
+<header class="flex justify-between items-center h-[52px] w-full px-4 bg-transparent flat no shadows z-40 fixed md:hidden top-0 w-full">
+<button class="p-2 text-stone-900 dark:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors rounded-full scale-95 duration-150" style="">
+<span class="material-symbols-outlined" data-icon="menu" style="">menu</span>
+</button>
+<div class="font-sans text-lg font-semibold tracking-tight text-stone-900 dark:text-stone-100" style=""><br></div>
+<button class="p-2 text-stone-900 dark:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors rounded-full scale-95 duration-150" style="">
+<span class="material-symbols-outlined" data-icon="share" style="">share</span>
+</button>
+</header>
+<!-- Spacer for mobile top bar -->
+<div class="h-[52px] md:hidden"></div>
+<div class="px-padding-mobile md:px-padding-desktop py-space-8 flex-grow max-w-[800px] mx-auto w-full">
+<!-- Context Header -->
+<div class="flex items-center gap-space-3 mb-space-4">
+<span class="bg-surface-raised px-3 py-1 rounded-full font-label text-label text-text-primary" style="">Round 4</span>
+</div>
+<!-- Target Word & Score Summary -->
+<div class="mb-space-10">
+<div class="flex items-center gap-space-3 mb-space-2">
+<h1 class="font-heading-1 text-heading-1 text-text-primary uppercase tracking-tight" style="">LEVERAGE</h1>
+<span class="bg-amber-bg text-amber-text px-2 py-0.5 rounded text-xs font-medium" style="">Medium</span>
+</div>
+<div class="flex items-baseline gap-space-2 mt-space-6">
+<span class="font-display text-display text-green-text" style="">84</span>
+<span class="font-heading-2 text-heading-2 text-text-muted" style="">/100</span>
+</div>
+<div class="font-caption text-caption text-text-muted mt-1" style="">+7 from your best</div>
+</div>
+<!-- Score Breakdown Bar -->
+<div class="mb-space-10">
+<div class="flex h-2 rounded-full overflow-hidden w-full bg-surface-raised mb-space-3">
+<div class="bg-green-text w-1/5 h-full"></div>
+<div class="bg-primary w-[25%] h-full border-l border-background"></div>
+<div class="bg-outline w-[15%] h-full border-l border-background"></div>
+<div class="bg-amber-text w-[25%] h-full border-l border-background"></div>
+<div class="bg-surface-tint w-[15%] h-full border-l border-background"></div>
+</div>
+<div class="flex justify-between font-caption text-caption text-text-secondary px-1">
+<span class="" style="">Fluency</span>
+<span class="" style="">Pacing</span>
+<span class="" style="">Completion</span>
+<span class="" style="">Word Use</span>
+<span class="" style="">Clarity</span>
+</div>
+</div>
+<!-- Transcript Card -->
+<div class="bg-surface rounded-lg p-space-6 shadow-sm border border-border mb-space-8">
+<h3 class="font-body-medium text-body-medium text-text-primary mb-space-4" style="">Transcript Analysis</h3>
+<p class="font-body text-body text-on-surface leading-relaxed" style="">
+                    So, <span class="bg-red-mark text-red-text px-1 rounded" style="">um</span>, I think we should, <span class="bg-red-mark text-red-text px-1 rounded" style="">like</span>, <span class="border-b-[3px] border-amber-mark pb-0.5" style="">leverage our</span> core strengths<span class="bg-green-mark px-1 rounded ml-1" style="">...</span>
+</p>
+<div class="mt-space-6 pt-space-4 border-t border-border flex gap-space-4 font-caption text-caption text-text-muted">
+<div class="flex items-center gap-1" style=""><div class="w-2 h-2 rounded bg-red-mark"></div> Filler words</div>
+<div class="flex items-center gap-1" style=""><div class="w-2 h-0.5 bg-amber-mark"></div> Mid-sentence pause</div>
+<div class="flex items-center gap-1" style=""><div class="w-2 h-2 rounded bg-green-mark"></div> End-sentence pause</div>
+</div>
+</div>
+<!-- Feedback Points -->
+<div class="flex flex-col gap-space-4 mb-space-10">
+<div class="pl-space-4 border-l-[3px] border-green-text py-1">
+<h4 class="font-body-medium text-body-medium text-text-primary" style="">Excellent usage context</h4>
+<p class="font-body text-body text-text-secondary text-sm mt-1" style="">You placed 'leverage' perfectly within a business strategy context.</p>
+</div>
+<div class="pl-space-4 border-l-[3px] border-amber-text py-1">
+<h4 class="font-body-medium text-body-medium text-text-primary" style="">Watch the filler words</h4>
+<p class="font-body text-body text-text-secondary text-sm mt-1" style="">Reduce 'um' and 'like' to sound more authoritative when making a point.</p>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-col gap-space-3 mt-auto pb-space-8">
+<button class="w-full h-[52px] bg-btn-primary-bg text-btn-primary-text rounded-md font-body-medium text-body-medium flex items-center justify-center gap-2 hover:bg-opacity-90 transition-opacity" style="">
+                    Go again <span class="material-symbols-outlined" data-icon="arrow_forward" style="">arrow_forward</span>
+</button>
+<button class="w-full h-[52px] bg-btn-secondary-bg text-btn-secondary-text rounded-md font-body-medium text-body-medium flex items-center justify-center hover:bg-surface-variant transition-colors" style="">
+                    Share score
+                </button>
+</div>
+</div>
+</main>
+</body></html>

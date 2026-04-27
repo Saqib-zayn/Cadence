@@ -1,0 +1,298 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Cadence - Recording Phase</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-container": "#1d1b1c",
+                      "primary": "#000000",
+                      "surface-container-highest": "#e5e2e1",
+                      "red-bg": "#f0e8e8",
+                      "inverse-primary": "#c9c6c3",
+                      "background": "#f8f8f6",
+                      "nav-icon-inactive": "#a0a09a",
+                      "inverse-on-surface": "#f4f0ef",
+                      "surface-bright": "#fdf8f7",
+                      "error-container": "#ffdad6",
+                      "green-text": "#3a6b3a",
+                      "surface-container-high": "#ebe7e6",
+                      "secondary-container": "#deddd7",
+                      "text-muted": "#a0a09a",
+                      "btn-primary-bg": "#1a1a18",
+                      "tertiary-fixed-dim": "#cbc5c6",
+                      "secondary-fixed-dim": "#c8c7c0",
+                      "btn-primary-text": "#f8f8f6",
+                      "border": "#e2e2de",
+                      "red-mark": "#f0c8c8",
+                      "drawer-overlay": "rgba(0, 0, 0, 0.3)",
+                      "on-tertiary-fixed-variant": "#494647",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed-variant": "#474744",
+                      "secondary": "#5e5f5a",
+                      "tertiary-fixed": "#e7e1e2",
+                      "on-secondary-fixed": "#1b1c18",
+                      "secondary-fixed": "#e4e2dc",
+                      "on-error": "#ffffff",
+                      "green-mark": "#c8dfc8",
+                      "outline-variant": "#c8c7bf",
+                      "surface-container": "#f1edec",
+                      "green-bg": "#e8f0e8",
+                      "outline": "#777771",
+                      "on-background": "#1c1b1b",
+                      "primary-fixed-dim": "#c9c6c3",
+                      "on-primary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "on-surface-variant": "#474741",
+                      "btn-secondary-text": "#1a1a18",
+                      "on-primary-container": "#858481",
+                      "on-surface": "#1c1b1b",
+                      "surface": "#f0f0ed",
+                      "drawer-bg": "#f0f0ed",
+                      "text-primary": "#1a1a18",
+                      "surface-variant": "#e5e2e1",
+                      "on-tertiary-container": "#878384",
+                      "on-secondary-container": "#61615c",
+                      "amber-bg": "#f0ebe0",
+                      "surface-tint": "#5f5e5c",
+                      "amber-text": "#7a5c1e",
+                      "tertiary": "#000000",
+                      "amber-mark": "#e8d5a8",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-raised": "#eaeae6",
+                      "surface-dim": "#ddd9d8",
+                      "surface-container-low": "#f7f3f2",
+                      "on-secondary-fixed-variant": "#474743",
+                      "on-tertiary": "#ffffff",
+                      "primary-container": "#1c1c1a",
+                      "primary-fixed": "#e5e2de",
+                      "text-secondary": "#6b6b66",
+                      "btn-secondary-bg": "#eaeae6",
+                      "inverse-surface": "#313030",
+                      "red-text": "#8b3a3a",
+                      "on-tertiary-fixed": "#1d1b1c",
+                      "error": "#ba1a1a",
+                      "on-primary-fixed": "#1c1c1a",
+                      "btn-disabled": "#d4d4d0"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "space-5": "20px",
+                      "space-6": "24px",
+                      "padding-tablet": "48px",
+                      "space-4": "16px",
+                      "space-3": "12px",
+                      "space-8": "32px",
+                      "space-10": "40px",
+                      "space-1": "4px",
+                      "space-2": "8px",
+                      "padding-mobile": "24px",
+                      "padding-desktop": "80px"
+              },
+              "fontFamily": {
+                      "label": [
+                              "Inter"
+                      ],
+                      "heading-2": [
+                              "Inter"
+                      ],
+                      "body": [
+                              "Inter"
+                      ],
+                      "heading-1": [
+                              "Inter"
+                      ],
+                      "display": [
+                              "Inter"
+                      ],
+                      "body-medium": [
+                              "Inter"
+                      ],
+                      "caption": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "label": [
+                              "13px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "heading-2": [
+                              "20px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "letterSpacing": "0",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "heading-1": [
+                              "28px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display": [
+                              "56px",
+                              {
+                                      "lineHeight": "1.0",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-medium": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "letterSpacing": "0",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "caption": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-text-primary font-body antialiased selection:bg-surface-raised flex">
+<!-- Persistent SideNavBar -->
+<nav class="bg-[#f0f0ed] dark:bg-zinc-900 text-[#1a1a18] dark:text-zinc-100 font-['Inter'] antialiased tracking-tight h-screen w-[260px] fixed left-0 top-0 flex flex-col border-r border-[#e2e2de] dark:border-zinc-800 flat no shadows flex flex-col justify-between py-8 px-6 hidden md:flex z-50">
+<div>
+<div class="mb-10 pl-3">
+<h1 class="text-xl font-bold tracking-tighter text-zinc-900 dark:text-zinc-50" style="">Cadence</h1>
+<p class="font-caption text-caption text-text-muted mt-1" style="">Public Speaking AI</p>
+</div>
+<ul class="space-y-2">
+<li class="" style="">
+<a class="flex items-center gap-space-3 px-3 py-2 rounded-lg text-zinc-900 dark:text-zinc-50 font-semibold hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50 transition-colors duration-200 scale-98 active:scale-95 transition-transform" href="#" style="">
+<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">home</span>
+<span class="font-body-medium text-body-medium" style="">Home</span>
+</a>
+</li>
+<li class="" style="">
+<a class="flex items-center gap-space-3 px-3 py-2 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50 transition-colors duration-200 scale-98 active:scale-95 transition-transform" href="#" style="">
+<span class="material-symbols-outlined" style="">analytics</span>
+<span class="font-body-medium text-body-medium" style="">Progress</span>
+</a>
+</li>
+<li class="" style="">
+<a class="flex items-center gap-space-3 px-3 py-2 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50 transition-colors duration-200 scale-98 active:scale-95 transition-transform" href="#" style="">
+<span class="material-symbols-outlined" style="">history</span>
+<span class="font-body-medium text-body-medium" style="">Past Rounds</span>
+</a>
+</li>
+<li class="" style="">
+<a class="flex items-center gap-space-3 px-3 py-2 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50 transition-colors duration-200 scale-98 active:scale-95 transition-transform" href="#" style="">
+<span class="material-symbols-outlined" style="">settings</span>
+<span class="font-body-medium text-body-medium" style="">Settings</span>
+</a>
+</li>
+</ul>
+</div>
+<div>
+<div class="px-3 py-2 text-zinc-500 dark:text-zinc-400 font-caption text-caption" style="">
+                v1.0.4
+            </div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-0 md:ml-[260px] min-h-screen bg-background relative overflow-y-auto">
+<!-- Top App Bar (Mobile Only) -->
+<header class="bg-transparent text-[#1a1a18] dark:text-zinc-100 font-['Inter'] text-sm font-medium uppercase tracking-widest h-[52px] w-full sticky top-0 z-10 none flat no shadows flex items-center justify-center max-w-[640px] mx-auto px-4 md:hidden">
+<span class="text-zinc-900 dark:text-zinc-50 opacity-80 hover:opacity-100 transition-opacity cursor-pointer" style=""><br></span>
+</header>
+<!-- Canvas Container -->
+<div class="max-w-[640px] mx-auto w-full px-padding-mobile md:px-space-0 py-space-10 flex flex-col items-center justify-center min-h-[calc(100vh-52px)] md:min-h-screen">
+<!-- Round Badge -->
+<div class="bg-surface border border-border px-space-3 py-space-1 rounded-full mb-space-6 flex items-center shadow-sm">
+<span class="font-label text-label text-text-primary" style="">Round 5</span>
+</div>
+<!-- Title & Tag -->
+<div class="flex items-center gap-space-4 mb-space-8">
+<h2 class="font-display text-[36px] font-bold text-text-primary tracking-tighter" style="">MOMENTUM</h2>
+<div class="bg-amber-bg text-amber-text px-space-2 py-0.5 rounded-sm font-caption text-caption uppercase tracking-wider font-semibold" style="">Medium</div>
+</div>
+<!-- Context Card (Faded) -->
+<div class="w-full bg-surface border border-border rounded-lg p-space-6 mb-space-6 opacity-60 transition-opacity hover:opacity-100">
+<div class="flex gap-space-4 items-start">
+<div class="mt-1">
+<span class="material-symbols-outlined text-text-muted" style="">format_quote</span>
+</div>
+<div>
+<p class="font-body text-body text-text-secondary" style="">Speak for 60 seconds about your favorite childhood memory. Focus on maintaining a steady pace without using filler words like "um" or "ah".</p>
+</div>
+</div>
+</div>
+<!-- Live Recording Card -->
+<div class="w-full bg-surface border border-border rounded-xl p-space-8 mb-space-10 relative shadow-sm flex flex-col items-center justify-center min-h-[240px]">
+<!-- Timer & Dot -->
+<div class="absolute top-space-4 right-space-4 flex items-center gap-space-2">
+<div class="w-2 h-2 rounded-full bg-error animate-pulse"></div>
+<span class="font-label text-label text-error font-medium font-mono" style="">0:12</span>
+</div>
+<!-- Waveform Visualization (Simulated) -->
+<div class="w-full flex items-center justify-center gap-1 h-32 mt-space-4">
+<div class="w-1.5 bg-text-muted rounded-full h-[20%] transition-all"></div>
+<div class="w-1.5 bg-text-muted rounded-full h-[45%] transition-all"></div>
+<div class="w-1.5 bg-text-primary rounded-full h-[80%] transition-all"></div>
+<div class="w-1.5 bg-text-primary rounded-full h-[100%] transition-all"></div>
+<div class="w-1.5 bg-text-primary rounded-full h-[60%] transition-all"></div>
+<div class="w-1.5 bg-text-muted rounded-full h-[30%] transition-all"></div>
+<div class="w-1.5 bg-text-muted rounded-full h-[15%] transition-all"></div>
+<div class="w-1.5 bg-text-muted rounded-full h-[40%] transition-all"></div>
+<div class="w-1.5 bg-text-primary rounded-full h-[70%] transition-all"></div>
+<div class="w-1.5 bg-text-primary rounded-full h-[90%] transition-all"></div>
+<div class="w-1.5 bg-text-primary rounded-full h-[50%] transition-all"></div>
+<div class="w-1.5 bg-text-muted rounded-full h-[25%] transition-all"></div>
+<div class="w-1.5 bg-text-muted rounded-full h-[10%] transition-all"></div>
+<div class="w-1.5 bg-text-muted rounded-full h-[35%] transition-all"></div>
+<div class="w-1.5 bg-text-primary rounded-full h-[65%] transition-all"></div>
+<div class="w-1.5 bg-text-primary rounded-full h-[85%] transition-all"></div>
+<div class="w-1.5 bg-text-primary rounded-full h-[45%] transition-all"></div>
+<div class="w-1.5 bg-text-muted rounded-full h-[20%] transition-all"></div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-col items-center">
+<button class="bg-btn-primary-bg text-btn-primary-text font-label text-label h-[52px] w-[280px] rounded-md flex items-center justify-center gap-space-2 hover:bg-tertiary-container transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-background" style="">
+<span class="" style="">Done</span>
+<span class="material-symbols-outlined text-[18px]" style="">check</span>
+</button>
+<p class="mt-space-3 font-caption text-caption text-text-muted" style="">60 second max</p>
+</div>
+</div>
+</main>
+</body></html>
