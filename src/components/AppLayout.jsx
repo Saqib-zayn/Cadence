@@ -24,21 +24,20 @@ const NAV_ITEMS = [
 function DrawerContents({ pathname, onNav, onClose }) {
   return (
     <div className="flex flex-col h-full">
-      <div className="px-[24px] pt-[24px] flex items-start justify-between">
+      <div className="px-[24px] pt-[24px] pb-[24px] flex items-center justify-between">
         <div>
           <div className="text-heading-2 text-text-primary">Cadence</div>
-          <div className="text-caption text-text-muted mt-[4px]">Speak better, every day</div>
         </div>
         <button
           onClick={onClose}
-          className="w-[32px] h-[32px] flex items-center justify-center text-nav-icon-inactive flex-shrink-0 mt-[2px]"
+          className="w-[32px] h-[32px] flex items-center justify-center text-nav-icon-inactive flex-shrink-0"
           aria-label="Close sidebar"
         >
           <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>chevron_left</span>
         </button>
       </div>
 
-      <div className="mx-[20px] mt-[24px] mb-[4px] h-px bg-border" />
+      <div className="mx-[20px] mb-[4px] h-px bg-border" />
 
       <nav className="flex-1 px-[4px] py-[4px]">
         {NAV_ITEMS.map(({ path, icon, label }) => {

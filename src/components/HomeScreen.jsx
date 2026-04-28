@@ -79,13 +79,9 @@ export default function HomeScreen({ onStartRound }) {
         {/* Wordmark + tagline */}
         <div className="mb-[32px]">
           <h1 className="text-heading-1 text-text-primary">Cadence</h1>
-          {isFirstVisit ? (
-            <p className="text-body text-text-secondary mt-[8px]">
-              Get a word. Speak about it. See how you did.
-            </p>
-          ) : (
-            <p className="text-body text-text-secondary mt-[4px]">Ready to speak?</p>
-          )}
+          <p className="text-body text-text-secondary mt-[8px]">
+            Find your rhythm.
+          </p>
         </div>
 
         {/* Streak badge */}
