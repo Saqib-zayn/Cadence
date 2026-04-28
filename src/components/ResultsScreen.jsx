@@ -42,8 +42,8 @@ function ScoreBreakdownBar({ scores, llmData, llmLoading, llmError }) {
     { label: 'Filler',              score: scores.fillerWordScore,          max: 20, trackClass: 'bg-red-bg' },
     { label: 'Pacing',              score: scores.pacingScore,              max: 15, trackClass: 'bg-amber-bg' },
     { label: 'Completion',          score: scores.sentenceCompletionScore,  max: 10, trackClass: 'bg-surface-raised' },
-    { label: 'Clarity + Word use',  score: clarityWordUse,                  max: 35, trackClass: 'bg-surface-raised', loading: llmLoading, failed: llmError },
-    { label: 'Structure + Authority', score: structureAuth,                 max: 20, trackClass: 'bg-surface-raised', loading: llmLoading, failed: llmError },
+    { label: 'Clarity',   score: clarityWordUse, max: 35, trackClass: 'bg-surface-raised', loading: llmLoading, failed: llmError },
+    { label: 'Structure', score: structureAuth,  max: 20, trackClass: 'bg-surface-raised', loading: llmLoading, failed: llmError },
   ];
 
   function fillClass(score, max, loading, failed) {
@@ -65,7 +65,7 @@ function ScoreBreakdownBar({ scores, llmData, llmLoading, llmError }) {
 
   return (
     <div>
-      <div className="flex h-[8px] rounded-full overflow-hidden mb-[10px]">
+      <div className="flex h-[8px] rounded-full overflow-hidden">
         {segments.map((seg, i) => (
           <div
             key={i}
@@ -80,17 +80,17 @@ function ScoreBreakdownBar({ scores, llmData, llmLoading, llmError }) {
         ))}
       </div>
 
-      <div className="flex">
+      <div className="flex mt-[8px]">
         {segments.map((seg, i) => (
           <div
             key={i}
             className="flex flex-col items-center"
             style={{ flex: `${seg.max} 0 0` }}
           >
-            <span className="text-caption text-text-muted truncate w-full text-center px-[2px]">
+            <span className="text-[10px] text-text-muted truncate w-full text-center px-[8px]">
               {seg.label}
             </span>
-            <span className={`text-caption ${labelColor(seg.score, seg.max, seg.loading, seg.failed)}`}>
+            <span className={`text-[10px] ${labelColor(seg.score, seg.max, seg.loading, seg.failed)}`}>
               {seg.loading ? '–' : seg.failed ? '–' : `${seg.score}/${seg.max}`}
             </span>
           </div>
@@ -244,10 +244,10 @@ export default function ResultsScreen({ onGoAgain }) {
   return (
     <AppLayout title="Results" rightIcon="share" onRightIconClick={handleShare} maxWidth="960px">
       <div className="pt-[24px] md:pt-[40px]">
-        <div className="xl:flex xl:gap-[40px]">
+        <div className="xl:flex xl:gap-[48px]">
 
           {/* ── Left column: score + breakdown ── */}
-          <div className="xl:w-[45%] mb-[32px] xl:mb-0">
+          <div className="xl:w-[45%] mb-[32px] xl:mb-0 xl:pb-[24px]">
 
             {/* Round pill */}
             <div className="flex items-center gap-[8px] mb-[16px]">
