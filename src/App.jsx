@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { useState, useCallback } from 'react';
 import wordBankData from './utils/wordBank.json';
 import { generateContext } from './utils/api';
+import { SidebarContext } from './contexts/SidebarContext';
 import HomeScreen from './components/HomeScreen';
 import RoundScreen from './components/RoundScreen';
 import LoadingScreen from './components/LoadingScreen';
@@ -84,9 +85,13 @@ function AppRoutes() {
 }
 
 export default function App() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <SidebarContext.Provider value={{ sidebarOpen, setSidebarOpen }}>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </SidebarContext.Provider>
   );
 }
