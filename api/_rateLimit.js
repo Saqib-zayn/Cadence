@@ -20,10 +20,6 @@ function getRedis() {
   return redis;
 }
 
-function getUtcDateKey(date = new Date()) {
-  return date.toISOString().slice(0, 10);
-}
-
 export async function checkRateLimit(deviceId, endpoint) {
   const limit = LIMITS[endpoint];
 
@@ -35,7 +31,8 @@ export async function checkRateLimit(deviceId, endpoint) {
     return { allowed: false, remaining: 0 };
   }
 
-  const key = `cadence:${deviceId}:${endpoint}:${getUtcDateKey()}`;
+  const today = new Date().toISOString().split('T')[0];
+  const key = `cadence:${endpoint}:${deviceId}:${today}`;
   const count = await getRedis().incr(key);
 
   if (count === 1) {

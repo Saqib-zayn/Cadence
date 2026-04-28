@@ -78,7 +78,7 @@ export default async function handler(req, res) {
   const deviceId = req.headers['x-device-id'];
   const rateLimit = await checkRateLimit(deviceId, 'analyse');
   if (!rateLimit.allowed) {
-    return res.status(429).json({ error: 'limit_reached', remaining: rateLimit.remaining });
+    return res.status(429).json({ error: 'limit_reached' });
   }
 
   const groqKey = req.headers['x-groq-key'] || GROQ_API_KEY;

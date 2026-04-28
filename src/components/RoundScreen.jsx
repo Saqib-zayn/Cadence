@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AppLayout from './AppLayout';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
-import { generateContext } from '../utils/api';
 import { storeAudio } from '../utils/audioStore';
 
 const RADIUS = 40;
@@ -86,35 +85,19 @@ export default function RoundScreen({ sessionRoundCount }) {
   const challengeMode = state?.challengeMode || false;
   const roundNumber = state?.roundNumber || sessionRoundCount || 1;
   const isWeeklyChallenge = state?.isWeeklyChallenge || false;
+  const context = state?.context || null;
 
   const [phase, setPhase] = useState(challengeMode ? 'challenge' : 'thinking');
   const [countdown, setCountdown] = useState(5);
   const [elapsed, setElapsed] = useState(0);
-  const [context, setContext] = useState(null);
 
   const { startRecording, stopRecording, audioBlob, volumeData, error } = useAudioRecorder();
   const countdownRef = useRef(null);
   const elapsedRef = useRef(null);
-  const contextRef = useRef(null);
 
   // Redirect if navigated to without a word
   useEffect(() => {
     if (!word) navigate('/', { replace: true });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Fetch context on mount
-  useEffect(() => {
-    if (!word) return;
-    generateContext(word.word, category)
-      .then(data => {
-        setContext(data.context);
-        contextRef.current = data.context;
-      })
-      .catch(() => {
-        const fallback = `Use the word "${word.word}" naturally in a response about a recent challenge you've faced.`;
-        setContext(fallback);
-        contextRef.current = fallback;
-      });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Thinking countdown — fires only in thinking phase
@@ -154,7 +137,7 @@ export default function RoundScreen({ sessionRoundCount }) {
     if (!audioBlob) return;
     storeAudio(audioBlob, volumeData);
     navigate('/loading', {
-      state: { word, context: contextRef.current },
+      state: { word, context },
     });
   }, [audioBlob]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -225,15 +208,7 @@ export default function RoundScreen({ sessionRoundCount }) {
 
             {/* Context card */}
             <div className="bg-surface border border-border rounded-lg p-[20px] shadow-sm mb-[32px]">
-              {context ? (
-                <p className="text-body text-text-primary">{context}</p>
-              ) : (
-                <div className="space-y-[8px]">
-                  <div className="h-[16px] bg-surface-raised rounded-sm animate-pulse w-full" />
-                  <div className="h-[16px] bg-surface-raised rounded-sm animate-pulse w-[85%]" />
-                  <div className="h-[16px] bg-surface-raised rounded-sm animate-pulse w-[70%]" />
-                </div>
-              )}
+              <p className="text-body text-text-primary">{context}</p>
             </div>
 
             {/* Thinking: countdown ring */}

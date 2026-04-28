@@ -24,6 +24,7 @@ export function useAudioRecorder() {
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
   const volumeIntervalRef = useRef(null);
+  const maxDurationTimerRef = useRef(null);
   const volumeDataRef = useRef([]);
   const startTimeRef = useRef(null);
 
@@ -79,20 +80,37 @@ export function useAudioRecorder() {
     mediaRecorder.onstop = () => {
       const finalMime = mimeType || 'audio/webm';
       const blob = new Blob(chunksRef.current, { type: finalMime });
-      setAudioBlob(blob);
-      setVolumeData([...volumeDataRef.current]);
       stream.getTracks().forEach((t) => t.stop());
       if (audioContextRef.current) {
         audioContextRef.current.close();
         audioContextRef.current = null;
       }
+      if (blob.size < 1000) {
+        setError('Recording failed. Please check your mic and try again.');
+        return;
+      }
+      setAudioBlob(blob);
+      setVolumeData([...volumeDataRef.current]);
     };
 
     mediaRecorder.start();
     setIsRecording(true);
+
+    maxDurationTimerRef.current = setTimeout(() => {
+      clearInterval(volumeIntervalRef.current);
+      volumeIntervalRef.current = null;
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+      }
+      setIsRecording(false);
+    }, 45000);
   }, []);
 
   const stopRecording = useCallback(() => {
+    if (maxDurationTimerRef.current) {
+      clearTimeout(maxDurationTimerRef.current);
+      maxDurationTimerRef.current = null;
+    }
     if (volumeIntervalRef.current) {
       clearInterval(volumeIntervalRef.current);
       volumeIntervalRef.current = null;

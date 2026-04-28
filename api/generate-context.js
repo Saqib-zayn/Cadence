@@ -20,10 +20,7 @@ export default async function handler(req, res) {
   const rateLimit = await checkRateLimit(deviceId, "generate-context");
 
   if (!rateLimit.allowed) {
-    return res.status(429).json({
-      error: "limit_reached",
-      remaining: rateLimit.remaining,
-    });
+    return res.status(429).json({ error: "limit_reached" });
   }
 
   if (!GROQ_API_KEY) {
@@ -56,11 +53,11 @@ export default async function handler(req, res) {
         {
           role: "system",
           content:
-            "You generate short specific speaking scenarios for a public speaking trainer. Return only the scenario text, nothing else. No quotes, no labels.",
+            "You generate short 2-sentence speaking scenarios. Be specific and direct. Never exceed 2 sentences.",
         },
         {
           role: "user",
-          content: `Generate a short 2-3 line (short enough to give context but not too long it cant be read in 5 seconds)speaking scenario for '${word}' in a ${category} context. The user must use this word naturally. Be specific and realistic.`,
+          content: `Generate a 2-sentence speaking scenario for '${word}' in a ${category} context. The user must use this word naturally.`,
         },
       ],
       temperature: 0.7,

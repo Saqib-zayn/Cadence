@@ -38,6 +38,7 @@ export default function HomeScreen({ onStartRound }) {
   const [weeklyChallenge] = useState(() => getWeeklyChallenge());
   const [streak] = useState(() => getStreak());
   const [isFirstVisit] = useState(() => !localStorage.getItem('cadence_visited'));
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('cadence_difficulty', difficulty);
@@ -55,16 +56,20 @@ export default function HomeScreen({ onStartRound }) {
     setCategory(c => CATEGORIES[(CATEGORIES.indexOf(c) + 1) % CATEGORIES.length]);
   }
 
-  function handleStart() {
+  async function handleStart() {
+    if (isLoading) return;
+    setIsLoading(true);
     localStorage.setItem('cadence_visited', '1');
-    onStartRound(difficulty, category, false);
+    await onStartRound(difficulty, category, false);
   }
 
-  function handleWeeklyChallenge() {
+  async function handleWeeklyChallenge() {
+    if (isLoading) return;
+    setIsLoading(true);
     localStorage.setItem('cadence_visited', '1');
     recordWeeklyPlay(weeklyChallenge.word);
     const wcWord = { word: weeklyChallenge.word, difficulty: 'hard', category: 'random' };
-    onStartRound('hard', 'random', false, wcWord);
+    await onStartRound('hard', 'random', false, wcWord);
   }
 
   return (
@@ -110,9 +115,10 @@ export default function HomeScreen({ onStartRound }) {
             </div>
             <button
               onClick={handleWeeklyChallenge}
-              className="flex-shrink-0 h-[36px] px-[16px] bg-btn-secondary-bg text-btn-secondary-text text-label rounded-md whitespace-nowrap"
+              disabled={isLoading}
+              className="flex-shrink-0 h-[36px] px-[16px] bg-btn-secondary-bg text-btn-secondary-text text-label rounded-md whitespace-nowrap disabled:opacity-60"
             >
-              Play
+              {isLoading ? '...' : 'Play'}
             </button>
           </div>
         </div>
@@ -137,9 +143,10 @@ export default function HomeScreen({ onStartRound }) {
         {/* Start Round CTA */}
         <button
           onClick={handleStart}
-          className="w-full max-w-[360px] h-[52px] bg-btn-primary-bg text-btn-primary-text text-body-medium rounded-md"
+          disabled={isLoading}
+          className="w-full max-w-[360px] h-[52px] bg-btn-primary-bg text-btn-primary-text text-body-medium rounded-md disabled:opacity-60"
         >
-          {isFirstVisit ? 'Start your first round' : 'Start Round'}
+          {isLoading ? 'Getting your word...' : isFirstVisit ? 'Start your first round' : 'Start Round'}
         </button>
 
         {isFirstVisit && (

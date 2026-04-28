@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { useState, useCallback } from 'react';
 import wordBankData from './utils/wordBank.json';
+import { generateContext } from './utils/api';
 import HomeScreen from './components/HomeScreen';
 import RoundScreen from './components/RoundScreen';
 import LoadingScreen from './components/LoadingScreen';
@@ -26,7 +27,7 @@ function AppRoutes() {
   const navigate = useNavigate();
 
   const handleStartRound = useCallback(
-    (difficulty = 'easy', category = 'random', challengeMode = false, specificWord = null) => {
+    async (difficulty = 'easy', category = 'random', challengeMode = false, specificWord = null) => {
       let word;
       if (specificWord) {
         word = specificWord;
@@ -35,11 +36,17 @@ function AppRoutes() {
         setRecentWords(prev => [...prev.slice(-9), word.word]);
       }
 
-      // Check if mic permission screen needs to be shown (first round only)
-      const micShown = localStorage.getItem('cadence_mic_shown');
       const nextRound = sessionRoundCount + 1;
       setSessionRoundCount(nextRound);
       setRoundKey(k => k + 1);
+
+      let context;
+      try {
+        const data = await generateContext(word.word, category);
+        context = data.context;
+      } catch {
+        context = `Use the word "${word.word}" naturally in a response about a recent challenge you've faced.`;
+      }
 
       const roundState = {
         word,
@@ -47,8 +54,10 @@ function AppRoutes() {
         challengeMode,
         roundNumber: nextRound,
         isWeeklyChallenge: !!specificWord,
+        context,
       };
 
+      const micShown = localStorage.getItem('cadence_mic_shown');
       if (!micShown) {
         navigate('/mic-permission', { state: { next: { path: '/round', state: roundState } } });
       } else {

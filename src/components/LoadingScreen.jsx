@@ -28,6 +28,7 @@ export default function LoadingScreen() {
 
   const [phraseIdx, setPhraseIdx] = useState(() => Math.floor(Math.random() * PHRASES.length));
   const [stageIdx, setStageIdx] = useState(0);
+  const [errorMsg, setErrorMsg] = useState(null);
   const barRef = useRef(null);
   const startTimeRef = useRef(null);
   const doneRef = useRef(false);
@@ -91,9 +92,28 @@ export default function LoadingScreen() {
     sendAudio(blob)
       .then(transcript => finish(transcript))
       .catch(err => {
-        finish({ error: err.message || 'Transcription failed', words: [], text: '' });
+        if (doneRef.current) return;
+        doneRef.current = true;
+        clearAudio();
+        setErrorMsg(err.message || 'Something went wrong. Please try again.');
       });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (errorMsg) {
+    return (
+      <div className="min-h-dvh bg-background flex flex-col items-center justify-center px-[24px]">
+        <div className="bg-surface border border-border rounded-lg p-[20px] shadow-sm max-w-[360px] w-full text-center">
+          <p className="text-body text-text-primary mb-[20px]">{errorMsg}</p>
+          <button
+            onClick={() => navigate('/')}
+            className="w-full h-[52px] bg-btn-primary-bg text-btn-primary-text text-body-medium rounded-md"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-dvh bg-background flex flex-col items-center justify-center px-[24px]">

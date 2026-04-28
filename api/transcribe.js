@@ -2,6 +2,7 @@
 import { Formidable } from "formidable";
 import { readFile } from "node:fs/promises";
 import process from "node:process";
+import { checkRateLimit } from "./_rateLimit.js";
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
@@ -9,6 +10,12 @@ export default async function handler(req, res) {
   console.log("GROQ key present:", !!GROQ_API_KEY);
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const deviceId = req.headers["x-device-id"];
+  const rateLimit = await checkRateLimit(deviceId, "transcribe");
+  if (!rateLimit.allowed) {
+    return res.status(429).json({ error: "limit_reached" });
   }
 
   const form = new Formidable({});
@@ -60,5 +67,13 @@ export default async function handler(req, res) {
   }
 
   const data = await groqRes.json();
+
+  if (!data.words || data.words.length === 0) {
+    return res.status(422).json({
+      error: 'no_speech',
+      message: "We couldn't transcribe that clearly. Try speaking a little closer to your mic.",
+    });
+  }
+
   return res.json(data);
 }
