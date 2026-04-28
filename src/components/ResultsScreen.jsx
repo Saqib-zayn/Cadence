@@ -17,7 +17,6 @@ function scoreColor(n) {
   return 'text-red-text';
 }
 
-// Fallback deterministic feedback shown while LLM is loading or on error
 function deterministicFeedback(scores) {
   const points = [];
   if (scores.fillerWordScore < 20) {
@@ -34,38 +33,11 @@ function deterministicFeedback(scores) {
 
 function ScoreBreakdownBar({ scores, naturalWordScore, clarityScore, llmLoading }) {
   const segments = [
-    {
-      label: 'Fluency',
-      score: scores.fillerWordScore,
-      max: 30,
-      trackClass: 'bg-red-bg',
-    },
-    {
-      label: 'Pacing',
-      score: scores.pauseQualityScore,
-      max: 20,
-      trackClass: 'bg-amber-bg',
-    },
-    {
-      label: 'Completion',
-      score: scores.sentenceCompletionScore,
-      max: 10,
-      trackClass: 'bg-surface-raised',
-    },
-    {
-      label: 'Word Use',
-      score: naturalWordScore,
-      max: 20,
-      trackClass: 'bg-surface-raised',
-      loading: llmLoading,
-    },
-    {
-      label: 'Clarity',
-      score: clarityScore,
-      max: 20,
-      trackClass: 'bg-surface-raised',
-      loading: llmLoading,
-    },
+    { label: 'Fluency',    score: scores.fillerWordScore,      max: 30, trackClass: 'bg-red-bg' },
+    { label: 'Pacing',     score: scores.pauseQualityScore,    max: 20, trackClass: 'bg-amber-bg' },
+    { label: 'Completion', score: scores.sentenceCompletionScore, max: 10, trackClass: 'bg-surface-raised' },
+    { label: 'Word Use',   score: naturalWordScore,             max: 20, trackClass: 'bg-surface-raised', loading: llmLoading },
+    { label: 'Clarity',    score: clarityScore,                 max: 20, trackClass: 'bg-surface-raised', loading: llmLoading },
   ];
 
   function fillClass(score, max, loading) {
@@ -125,28 +97,28 @@ export default function ResultsScreen({ onGoAgain }) {
   const { state } = useLocation();
   const navigate = useNavigate();
 
-  const word = state?.word;
+  const word       = state?.word;
   const transcript = state?.transcript;
   const volumeData = state?.volumeData || [];
-  const context = state?.context || '';
+  const context    = state?.context || '';
 
-  const [llmStatus, setLlmStatus] = useState('loading');
-  const [llmData, setLlmData] = useState(null);
-  const [jsonOpen, setJsonOpen] = useState(false);
+  const [llmStatus, setLlmStatus]   = useState('loading');
+  const [llmData, setLlmData]       = useState(null);
+  const [jsonOpen, setJsonOpen]     = useState(false);
 
-  // Deterministic scoring — computed once synchronously on mount
+  // Run deterministic scoring synchronously on mount — frontend layer per spec
   const det = useMemo(() => {
     const words = transcript?.words || [];
     const scores = scoreDeterministic(words, volumeData);
     const deterministicTotal =
       scores.fillerWordScore + scores.pauseQualityScore + scores.sentenceCompletionScore;
 
-    const badPauseIndices = new Set();
+    const badPauseIndices  = new Set();
     const goodPauseIndices = new Set();
     scores.pauseAnnotations.forEach(({ timestamp, type }) => {
       const idx = words.findIndex(w => Number(w.start) > timestamp / 1000);
       if (idx !== -1) {
-        if (type === 'bad') badPauseIndices.add(idx);
+        if (type === 'bad')  badPauseIndices.add(idx);
         if (type === 'good') goodPauseIndices.add(idx);
       }
     });
@@ -170,7 +142,7 @@ export default function ResultsScreen({ onGoAgain }) {
       .catch(() => setLlmStatus('error'));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Update personal best when analysis finalises
+  // Persist personal best after LLM scores arrive
   useEffect(() => {
     if (llmStatus !== 'done' || !llmData) return;
     const finalScore = det.deterministicTotal + llmData.naturalWordScore + llmData.clarityScore;
@@ -193,33 +165,33 @@ export default function ResultsScreen({ onGoAgain }) {
     );
   }
 
-  // Derived scores
-  const llmLoading = llmStatus === 'loading';
-  const naturalWordScore = llmData?.naturalWordScore ?? 20;
-  const clarityScore = llmData?.clarityScore ?? 20;
-  const totalScore = det.deterministicTotal + naturalWordScore + clarityScore;
+  const llmLoading        = llmStatus === 'loading';
+  const naturalWordScore  = llmData?.naturalWordScore ?? 20;
+  const clarityScore      = llmData?.clarityScore ?? 20;
+  const totalScore        = det.deterministicTotal + naturalWordScore + clarityScore;
 
-  const personalBest = parseInt(localStorage.getItem('cadence_best_score') || '0', 10);
-  const delta = totalScore - personalBest;
-  const isNewBest = llmStatus === 'done' && delta > 0 && personalBest > 0;
+  // Read personal best before the save effect fires — correct for delta display
+  const personalBest      = parseInt(localStorage.getItem('cadence_best_score') || '0', 10);
+  const isNewBest         = llmStatus === 'done' && totalScore > personalBest;
+  const delta             = totalScore - personalBest;
+  const showBeatNudge     = llmStatus === 'done' && personalBest > 0 && totalScore < personalBest;
 
-  // Filler word indices from deterministic layer
+  // Filler indices from deterministic layer; LLM positions used only in plain-text fallback
   const fillerIndices = new Set();
   det.scores.fillerWordsFound.forEach(({ word: fw, position }) => {
     const tokenCount = fw.split(/\s+/).length;
     for (let i = 0; i < tokenCount; i++) fillerIndices.add(position + i);
   });
 
-  // Feedback: LLM if done, deterministic fallback otherwise
   const feedbackPoints =
     llmStatus === 'done' && llmData?.feedbackPoints?.length
       ? llmData.feedbackPoints
       : deterministicFeedback(det.scores);
 
   const transcriptWords = transcript.words || [];
-  const transcriptText = transcript.text || transcript.error || '';
-  const wordCount = transcriptWords.length || transcriptText.split(/\s+/).filter(Boolean).length;
-  const durationSec = transcript.duration ? Math.round(transcript.duration) : null;
+  const transcriptText  = transcript.text || transcript.error || '';
+  const wordCount       = transcriptWords.length || transcriptText.split(/\s+/).filter(Boolean).length;
+  const durationSec     = transcript.duration ? Math.round(transcript.duration) : null;
 
   const difficultyLabel = word.difficulty
     ? word.difficulty.charAt(0).toUpperCase() + word.difficulty.slice(1)
@@ -228,7 +200,7 @@ export default function ResultsScreen({ onGoAgain }) {
   function handleGoAgain() {
     if (onGoAgain) {
       const diff = localStorage.getItem('cadence_difficulty') || 'easy';
-      const cat = localStorage.getItem('cadence_category') || 'random';
+      const cat  = localStorage.getItem('cadence_category') || 'random';
       onGoAgain(diff, cat, false);
     } else {
       navigate('/');
@@ -244,11 +216,11 @@ export default function ResultsScreen({ onGoAgain }) {
       <div className="pt-[24px] md:pt-[40px]">
         <div className="xl:flex xl:gap-[40px]">
 
-          {/* Left column: score + breakdown */}
+          {/* ── Left column: score + breakdown ── */}
           <div className="xl:w-[45%] mb-[32px] xl:mb-0">
 
-            {/* Round + word header */}
-            <div className="flex items-center gap-[8px] mb-[16px] flex-wrap">
+            {/* Round pill */}
+            <div className="flex items-center gap-[8px] mb-[16px]">
               {state?.roundNumber && (
                 <span className="text-label bg-surface-raised text-text-primary px-[10px] py-[4px] rounded-full">
                   Round {state.roundNumber}
@@ -256,23 +228,29 @@ export default function ResultsScreen({ onGoAgain }) {
               )}
             </div>
 
+            {/* Word + difficulty badge */}
             <div className="flex items-start gap-[12px] mb-[8px] flex-wrap">
-              <h2 className="text-heading-1 text-text-primary">{word.word.toUpperCase()}</h2>
+              <h1 className="text-heading-1 text-text-primary uppercase tracking-tight">
+                {word.word.toUpperCase()}
+              </h1>
               {word.difficulty && (
-                <span className={`text-label px-[10px] py-[4px] rounded-full mt-[6px] ${DIFFICULTY_STYLES[word.difficulty]}`}>
+                <span
+                  className={`text-label px-[10px] py-[4px] rounded-full mt-[6px] ${DIFFICULTY_STYLES[word.difficulty]}`}
+                >
                   {difficultyLabel}
                 </span>
               )}
             </div>
 
-            <div className="flex items-center gap-[16px] mb-[24px] flex-wrap">
+            {/* Word count + duration metadata */}
+            <div className="flex items-center gap-[16px] mb-[24px]">
               <span className="text-caption text-text-muted">{wordCount} words</span>
               {durationSec !== null && (
                 <span className="text-caption text-text-muted">{durationSec}s</span>
               )}
             </div>
 
-            {/* Score */}
+            {/* Score number */}
             <div className="flex items-baseline gap-[8px] mb-[4px]">
               <span className={`text-display transition-colors duration-500 ${scoreColor(totalScore)}`}>
                 {totalScore}
@@ -280,18 +258,19 @@ export default function ResultsScreen({ onGoAgain }) {
               <span className="text-heading-2 text-text-muted">/100</span>
             </div>
 
-            {/* Delta / loading indicator */}
-            <div className="text-caption text-text-muted mb-[24px] min-h-[16px]">
+            {/* Delta / loading / new best */}
+            <div className="text-caption text-text-muted mb-[24px] min-h-[20px]">
               {llmLoading && 'Analysing word usage and clarity…'}
               {llmStatus === 'error' && 'Analysis unavailable — deterministic score only'}
-              {llmStatus === 'done' && personalBest > 0 && isNewBest && (
-                <span className="text-green-text">New personal best!</span>
+              {llmStatus === 'done' && isNewBest && (
+                <span className="text-green-text">📈 New personal best!</span>
               )}
-              {llmStatus === 'done' && personalBest > 0 && !isNewBest && delta !== 0 && (
+              {llmStatus === 'done' && !isNewBest && personalBest > 0 && delta !== 0 && (
                 <span>{delta > 0 ? `+${delta}` : delta} from your best</span>
               )}
             </div>
 
+            {/* Score breakdown bar */}
             <ScoreBreakdownBar
               scores={det.scores}
               naturalWordScore={naturalWordScore}
@@ -300,7 +279,7 @@ export default function ResultsScreen({ onGoAgain }) {
             />
           </div>
 
-          {/* Right column: transcript + feedback + actions */}
+          {/* ── Right column: transcript + feedback + actions ── */}
           <div className="xl:w-[55%]">
 
             {/* Transcript card */}
@@ -315,9 +294,12 @@ export default function ResultsScreen({ onGoAgain }) {
                   badPauseIndices={det.badPauseIndices}
                   goodPauseIndices={det.goodPauseIndices}
                 />
-              ) : (
-                <p className="text-body text-text-primary leading-relaxed">{transcriptText}</p>
-              )}
+              ) : transcriptText ? (
+                <TranscriptDisplay
+                  plainText={transcriptText}
+                  llmFillerPositions={llmData?.fillerWordPositions}
+                />
+              ) : null}
             </div>
 
             {/* Feedback cards */}
@@ -337,7 +319,9 @@ export default function ResultsScreen({ onGoAgain }) {
                 feedbackPoints.map((point, i) => (
                   <div
                     key={i}
-                    className={`pl-[16px] border-l-[3px] py-[4px] ${point.positive ? 'border-green-text' : 'border-amber-text'}`}
+                    className={`pl-[16px] border-l-[3px] py-[4px] ${
+                      point.positive ? 'border-green-text' : 'border-amber-text'
+                    }`}
                   >
                     <p className="text-body text-text-primary">{point.text}</p>
                   </div>
@@ -345,25 +329,45 @@ export default function ResultsScreen({ onGoAgain }) {
               )}
             </div>
 
+            {/* Beat This Score nudge */}
+            {showBeatNudge && (
+              <div className="bg-amber-bg border border-border rounded-lg p-[16px] mb-[24px]">
+                <p className="text-body-medium text-text-primary mb-[8px]">
+                  Your best is {personalBest}. One more round?
+                </p>
+                <button
+                  onClick={handleGoAgain}
+                  className="text-body-medium text-amber-text flex items-center gap-[4px]"
+                >
+                  Beat it
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                    arrow_forward
+                  </span>
+                </button>
+              </div>
+            )}
+
             {/* Action buttons */}
-            <div className="flex flex-col sm:flex-row gap-[12px] max-w-[400px] mb-[24px]">
+            <div className="flex flex-col gap-[12px] xl:w-[280px] mb-[24px]">
               <button
                 onClick={handleGoAgain}
-                className="flex-1 h-[52px] bg-btn-primary-bg text-btn-primary-text text-body-medium rounded-md flex items-center justify-center gap-[8px]"
+                className="w-full h-[52px] md:h-[56px] xl:h-[52px] bg-btn-primary-bg text-btn-primary-text text-body-medium rounded-md flex items-center justify-center gap-[8px] active:opacity-90 transition-opacity"
               >
                 Go again
-                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_forward</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                  arrow_forward
+                </span>
               </button>
               <button
                 onClick={handleShare}
-                className="flex-1 h-[52px] bg-btn-secondary-bg text-btn-secondary-text text-body-medium rounded-md"
+                className="w-full h-[52px] md:h-[56px] xl:h-[52px] bg-btn-secondary-bg text-btn-secondary-text text-body-medium rounded-md flex items-center justify-center active:opacity-90 transition-opacity"
               >
                 Share score
               </button>
             </div>
 
-            {/* Raw data collapsible */}
-            <div>
+            {/* Raw data collapsible — dev aid */}
+            <div className="mb-[24px]">
               <button
                 onClick={() => setJsonOpen(o => !o)}
                 className="flex items-center gap-[6px] text-caption text-text-muted"
@@ -375,7 +379,11 @@ export default function ResultsScreen({ onGoAgain }) {
               </button>
               {jsonOpen && (
                 <pre className="mt-[12px] p-[16px] bg-surface border border-border rounded-lg text-caption text-text-secondary overflow-auto max-h-[300px] whitespace-pre-wrap break-all">
-                  {JSON.stringify({ transcript, deterministicScores: det.scores, llmData }, null, 2)}
+                  {JSON.stringify(
+                    { transcript, deterministicScores: det.scores, llmData },
+                    null,
+                    2,
+                  )}
                 </pre>
               )}
             </div>
