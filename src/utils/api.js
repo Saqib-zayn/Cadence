@@ -45,8 +45,14 @@ export async function sendAudio(blob) {
     throw new Error('Recording too large. Please try a shorter response.');
   }
 
+  function mimeToExt(mime = '') {
+    if (mime.includes('mp4')) return 'mp4';
+    if (mime.includes('ogg')) return 'ogg';
+    return 'webm';
+  }
+
   const formData = new FormData();
-  formData.append('audio', blob, 'recording.webm');
+  formData.append('audio', blob, `recording.${mimeToExt(blob.type)}`);
 
   const res = handleResponse(await fetch('/api/transcribe', {
     method: 'POST',

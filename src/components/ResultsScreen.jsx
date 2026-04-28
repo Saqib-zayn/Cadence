@@ -6,6 +6,8 @@ import ShareCard from './ShareCard';
 import scoreDeterministic from '../utils/scoring';
 import { analyseRound } from '../utils/api';
 import { generateShareCard, generateShareText, triggerShare } from '../utils/shareCard';
+import { saveRound } from '../hooks/useLocalStorage';
+import { useStreak } from '../hooks/useStreak';
 
 const DIFFICULTY_STYLES = {
   easy: 'bg-green-bg text-green-text',
@@ -115,11 +117,16 @@ export default function ResultsScreen({ onGoAgain }) {
   const [jsonOpen, setJsonOpen]     = useState(false);
   const [sharing, setSharing]       = useState(false);
   const shareCardRef                = useRef(null);
+  const savedRef                    = useRef(false);
+
+  const { incrementStreak } = useStreak();
 
   // Run deterministic scoring synchronously on mount — frontend layer per spec
   const det = useMemo(() => {
     const words = transcript?.words || [];
     const scores = scoreDeterministic(words, volumeData, transcript?.duration ?? 0);
+    console.log('Scoring input words:', transcript?.words?.map(w => w.word));
+    console.log('Scoring result:', JSON.stringify(scores, null, 2));
     const deterministicTotal =
       scores.fillerWordScore + scores.pacingScore + scores.sentenceCompletionScore;
 
@@ -166,6 +173,32 @@ export default function ResultsScreen({ onGoAgain }) {
       })
       .catch(() => setLlmStatus('error'));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Persist completed round once LLM resolves (done or error)
+  useEffect(() => {
+    if ((llmStatus !== 'done' && llmStatus !== 'error') || savedRef.current) return;
+    if (!word || !transcript) return;
+    savedRef.current = true;
+    incrementStreak({
+      id: crypto.randomUUID(),
+      timestamp: Date.now(),
+      word: word.word,
+      difficulty: word.difficulty,
+      contextCategory,
+      fillerCount: det.scores.hardFillerCount,
+      fillerWordsFound: det.scores.fillerWordsFound,
+      pauseCount: det.scores.pauseAnnotations?.filter(p => p.type === 'bad').length || 0,
+      fluencyScore: llmData?.totalScore ?? det.deterministicTotal,
+      scoreBreakdown: {
+        fillerWords: det.scores.fillerWordScore,
+        pauseQuality: det.scores.pacingScore,
+        sentenceCompletion: det.scores.sentenceCompletionScore,
+      },
+      transcript: transcript.text,
+      feedbackPoints: llmData?.feedbackPoints || [],
+      isWeeklyChallenge: state?.isWeeklyChallenge || false,
+    });
+  }, [llmStatus, llmData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Persist personal best after LLM scores arrive
   useEffect(() => {

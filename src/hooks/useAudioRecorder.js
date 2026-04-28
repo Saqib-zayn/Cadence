@@ -37,7 +37,13 @@ export function useAudioRecorder() {
 
     let stream;
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+        },
+      });
     } catch (err) {
       setError(err.message || 'Microphone permission denied');
       return;

@@ -266,11 +266,19 @@ export const scoreSentenceCompletion = (transcript = []) => {
 // ─── Main export ──────────────────────────────────────────────────────────────
 
 export const scoreDeterministic = (transcript = [], volumeData = [], durationSec = 0) => {
+  console.log('=== SCORING DEBUG ===')
+  console.log('Words received:', JSON.stringify(transcript))
+  console.log('Hard fillers list:', HARD_FILLERS)
+  console.log('First word check:', transcript?.[0]?.word,
+    '→ normalised:', normalizeWord(transcript?.[0]?.word))
+
   const hardFillerMatches  = findHardFillers(transcript)
   const softFillerFlags    = findSoftFillerFlags(transcript)
   const pauseAnnotations   = analyzePauses(transcript, volumeData)
 
   const hardFillerCount         = hardFillerMatches.length
+  console.log('Hard fillers found:', hardFillerCount)
+  console.log('Soft filler flags:', softFillerFlags)
   const fillerWordScore         = scoreFillerWords(hardFillerCount)
   const pacingScore             = scorePacing(transcript.length, durationSec)
   const sentenceCompletionScore = scoreSentenceCompletion(transcript)

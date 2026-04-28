@@ -13,7 +13,11 @@ export default async function handler(req, res) {
   }
 
   const deviceId = req.headers["x-device-id"];
-  const rateLimit = await checkRateLimit(deviceId, "transcribe", req.headers["x-dev-token"]);
+  const rateLimit = await checkRateLimit(
+    deviceId,
+    "transcribe",
+    req.headers["x-dev-token"],
+  );
   if (!rateLimit.allowed) {
     return res.status(429).json({ error: "limit_reached" });
   }
@@ -35,19 +39,26 @@ export default async function handler(req, res) {
   const audioBuffer = await readFile(audioFile.filepath);
   const mimeType = audioFile.mimetype || "audio/webm";
 
+  function mimeToExt(mime = "") {
+    if (mime.includes("mp4")) return "mp4";
+    if (mime.includes("ogg")) return "ogg";
+    return "webm";
+  }
+
   const groqForm = new FormData();
   groqForm.append(
     "file",
     new Blob([audioBuffer], { type: mimeType }),
-    "recording.webm",
+    `recording.${mimeToExt(mimeType)}`,
   );
   groqForm.append("model", "whisper-large-v3");
   groqForm.append("response_format", "verbose_json");
   groqForm.append("timestamp_granularities[]", "word");
-  groqForm.append("temperature", "0");
+  groqForm.append("language", "en");
+  groqForm.append("temperature", "0.2");
   groqForm.append(
     "prompt",
-    "Transcribe exactly what is said including filler words like um, uh, like, you know, basically, and anything else you see fit. Do not clean up or remove any words.",
+    "Um, uh, like, so, basically, you know, I mean, literally, right, kind of, sort of, erm, hmm, ah.",
   );
 
   const groqRes = await fetch(
@@ -68,10 +79,12 @@ export default async function handler(req, res) {
 
   const data = await groqRes.json();
 
+  console.log("RAW GROQ RESPONSE:", JSON.stringify(data.words));
   if (!data.words || data.words.length === 0) {
     return res.status(422).json({
-      error: 'no_speech',
-      message: "We couldn't transcribe that clearly. Try speaking a little closer to your mic.",
+      error: "no_speech",
+      message:
+        "We couldn't transcribe that clearly. Try speaking a little closer to your mic.",
     });
   }
 
