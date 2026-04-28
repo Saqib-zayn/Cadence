@@ -139,8 +139,8 @@ const ShareCard = forwardRef(function ShareCard({ roundData }, ref) {
       {feedbackPoints.length > 0 && (
         <div style={{ marginTop: 56, position: 'relative', flex: 1 }}>
           {feedbackPoints.slice(0, 3).map((point, i) => {
-            const positive = typeof point === 'object' ? point.positive : true;
-            const text = typeof point === 'object' ? point.text : point;
+            const positive = typeof point === 'object' ? (point.type === 'strength' || point.positive === true) : true;
+            const text = typeof point === 'object' ? (point.message || point.text || '') : point;
             return (
               <div
                 key={i}

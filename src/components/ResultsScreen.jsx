@@ -22,24 +22,27 @@ function scoreColor(n) {
 function deterministicFeedback(scores) {
   const points = [];
   if (scores.fillerWordScore < 20) {
-    points.push({ text: 'Reduce filler words — aim for fewer ums and uhs', positive: false });
+    points.push({ type: 'improvement', message: 'Reduce filler words — aim for fewer ums and uhs' });
   }
   if (scores.pauseQualityScore < 14) {
-    points.push({ text: 'Work on your pacing — avoid long mid-sentence pauses', positive: false });
+    points.push({ type: 'improvement', message: 'Work on your pacing — avoid long mid-sentence pauses' });
   }
   if (points.length === 0) {
-    points.push({ text: 'Good delivery — clean pacing and minimal filler words', positive: true });
+    points.push({ type: 'strength', message: 'Good delivery — clean pacing and minimal filler words' });
   }
   return points;
 }
 
-function ScoreBreakdownBar({ scores, naturalWordScore, clarityScore, llmLoading }) {
+function ScoreBreakdownBar({ scores, llmData, llmLoading }) {
   const segments = [
-    { label: 'Fluency',    score: scores.fillerWordScore,      max: 30, trackClass: 'bg-red-bg' },
-    { label: 'Pacing',     score: scores.pauseQualityScore,    max: 15, trackClass: 'bg-amber-bg' },
+    { label: 'Fluency',    score: scores.fillerWordScore,         max: 30, trackClass: 'bg-red-bg' },
+    { label: 'Pacing',     score: scores.pauseQualityScore,       max: 15, trackClass: 'bg-amber-bg' },
     { label: 'Completion', score: scores.sentenceCompletionScore, max: 10, trackClass: 'bg-surface-raised' },
-    { label: 'Word Use',   score: naturalWordScore,             max: 20, trackClass: 'bg-surface-raised', loading: llmLoading },
-    { label: 'Clarity',    score: clarityScore,                 max: 20, trackClass: 'bg-surface-raised', loading: llmLoading },
+    { label: 'Context',    score: llmData?.contextFitScore ?? 0,       max: 10, trackClass: 'bg-surface-raised', loading: llmLoading },
+    { label: 'Word Use',   score: llmData?.naturalWordUsageScore ?? 0, max: 15, trackClass: 'bg-surface-raised', loading: llmLoading },
+    { label: 'Clarity',    score: llmData?.clarityScore ?? 0,          max: 20, trackClass: 'bg-surface-raised', loading: llmLoading },
+    { label: 'Structure',  score: llmData?.structureScore ?? 0,        max: 15, trackClass: 'bg-surface-raised', loading: llmLoading },
+    { label: 'Authority',  score: llmData?.authorityScore ?? 0,        max: 10, trackClass: 'bg-surface-raised', loading: llmLoading },
   ];
 
   function fillClass(score, max, loading) {
@@ -99,10 +102,11 @@ export default function ResultsScreen({ onGoAgain }) {
   const { state } = useLocation();
   const navigate = useNavigate();
 
-  const word       = state?.word;
-  const transcript = state?.transcript;
-  const volumeData = state?.volumeData || [];
-  const context    = state?.context || '';
+  const word            = state?.word;
+  const transcript      = state?.transcript;
+  const volumeData      = state?.volumeData || [];
+  const context         = state?.context || '';
+  const contextCategory = state?.category || 'random';
 
   const [llmStatus, setLlmStatus]   = useState('loading');
   const [llmData, setLlmData]       = useState(null);
@@ -150,7 +154,7 @@ export default function ResultsScreen({ onGoAgain }) {
       transcript: transcript.text || '',
       word: word.word,
       context,
-      // Only send scored (bad/good) pauses to keep payload lean
+      contextCategory,
       pauseData: det.scores.pauseAnnotations.filter(p => p.type !== 'neutral'),
       softFillerFlags: det.scores.softFillerFlags,
     })
@@ -163,13 +167,12 @@ export default function ResultsScreen({ onGoAgain }) {
 
   // Persist personal best after LLM scores arrive
   useEffect(() => {
-    if (llmStatus !== 'done' || !llmData) return;
-    const finalScore = det.deterministicTotal + llmData.naturalWordScore + llmData.clarityScore;
+    if (llmStatus !== 'done' || !llmData?.totalScore) return;
     const prev = parseInt(localStorage.getItem('cadence_best_score') || '0', 10);
-    if (finalScore > prev) {
-      localStorage.setItem('cadence_best_score', String(finalScore));
+    if (llmData.totalScore > prev) {
+      localStorage.setItem('cadence_best_score', String(llmData.totalScore));
     }
-  }, [llmStatus, llmData, det.deterministicTotal]);
+  }, [llmStatus, llmData]);
 
   if (!word || !transcript) {
     return (
@@ -184,10 +187,11 @@ export default function ResultsScreen({ onGoAgain }) {
     );
   }
 
-  const llmLoading        = llmStatus === 'loading';
-  const naturalWordScore  = llmData?.naturalWordScore ?? 20;
-  const clarityScore      = llmData?.clarityScore ?? 20;
-  const totalScore        = det.deterministicTotal + naturalWordScore + clarityScore;
+  const llmLoading = llmStatus === 'loading';
+  // While LLM is pending, show the deterministic portion scaled to /100 as a rough live preview
+  const totalScore = llmStatus === 'done' && llmData?.totalScore != null
+    ? llmData.totalScore
+    : Math.round(det.deterministicTotal / 125 * 100);
 
   // Read personal best before the save effect fires — correct for delta display
   const personalBest      = parseInt(localStorage.getItem('cadence_best_score') || '0', 10);
@@ -296,8 +300,7 @@ export default function ResultsScreen({ onGoAgain }) {
             {/* Score breakdown bar */}
             <ScoreBreakdownBar
               scores={det.scores}
-              naturalWordScore={naturalWordScore}
-              clarityScore={clarityScore}
+              llmData={llmData}
               llmLoading={llmLoading}
             />
           </div>
@@ -345,14 +348,28 @@ export default function ResultsScreen({ onGoAgain }) {
                   <div
                     key={i}
                     className={`pl-[16px] border-l-[3px] py-[4px] ${
-                      point.positive ? 'border-green-text' : 'border-amber-text'
+                      point.type === 'strength' ? 'border-green-text' : 'border-amber-text'
                     }`}
                   >
-                    <p className="text-body text-text-primary">{point.text}</p>
+                    <p className="text-body text-text-primary">{point.message}</p>
                   </div>
                 ))
               )}
             </div>
+
+            {/* One-line summary + retry focus */}
+            {llmStatus === 'done' && (llmData?.oneLineSummary || llmData?.suggestedRetryFocus) && (
+              <div className="bg-surface border border-border rounded-lg p-[16px] mb-[24px] flex flex-col gap-[8px]">
+                {llmData.oneLineSummary && (
+                  <p className="text-body text-text-primary">{llmData.oneLineSummary}</p>
+                )}
+                {llmData.suggestedRetryFocus && (
+                  <p className="text-caption text-text-muted">
+                    Next time: {llmData.suggestedRetryFocus}
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Beat This Score nudge */}
             {showBeatNudge && (
@@ -425,9 +442,7 @@ export default function ResultsScreen({ onGoAgain }) {
           roundData={{
             word: word.word,
             score: totalScore,
-            feedbackPoints: llmStatus === 'done' && llmData?.feedbackPoints?.length
-              ? llmData.feedbackPoints
-              : [],
+            feedbackPoints: llmStatus === 'done' ? (llmData?.feedbackPoints || []) : [],
             fillerCount: det.scores.fillerWordsFound.length,
           }}
         />
