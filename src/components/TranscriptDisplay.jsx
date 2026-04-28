@@ -15,14 +15,32 @@ export default function TranscriptDisplay({
   // pause props
   badPauseIndices,
   goodPauseIndices,
+  // weak language props
+  weakLanguage,
   // plain-text fallback
   plainText,
   llmFillerPositions,
 }) {
   // Word-level mode (Whisper timestamp data available)
   if (words?.length) {
+    // Build weak language indices via sliding-window token match (more reliable than LLM's startIndex)
+    const weakLanguageIndices = new Set()
+    if (Array.isArray(weakLanguage) && weakLanguage.length > 0) {
+      const normWords = words.map(w => w.word.trim().toLowerCase().replace(/[^\w']/g, ''))
+      for (const { phrase } of weakLanguage) {
+        const phraseTokens = String(phrase).trim().toLowerCase().replace(/[^\w'\s]/g, '').trim().split(/\s+/)
+        for (let i = 0; i <= normWords.length - phraseTokens.length; i++) {
+          if (phraseTokens.every((t, j) => normWords[i + j] === t)) {
+            for (let j = 0; j < phraseTokens.length; j++) weakLanguageIndices.add(i + j)
+            break
+          }
+        }
+      }
+    }
+
     const hasPauses = badPauseIndices?.size > 0 || goodPauseIndices?.size > 0
     const hasSoftFlags = softFillerIndices?.size > 0 || confirmedSoftFillerIndices?.size > 0
+    const hasWeakLanguage = weakLanguageIndices.size > 0
 
     return (
       <div>
@@ -82,11 +100,24 @@ export default function TranscriptDisplay({
               )
             }
 
+            // Priority 6 — weak language: soft blue-grey tint
+            if (weakLanguageIndices?.has(i)) {
+              return (
+                <span
+                  key={i}
+                  className="rounded-sm px-[2px]"
+                  style={{ backgroundColor: '#e8eaf0', color: '#4a5568' }}
+                >
+                  {spaced}
+                </span>
+              )
+            }
+
             return <span key={i}>{spaced}</span>
           })}
         </p>
 
-        <Legend hasPauses={hasPauses} hasSoftFlags={hasSoftFlags} />
+        <Legend hasPauses={hasPauses} hasSoftFlags={hasSoftFlags} hasWeakLanguage={hasWeakLanguage} />
       </div>
     )
   }
@@ -119,7 +150,7 @@ export default function TranscriptDisplay({
   return null
 }
 
-function Legend({ hasPauses, hasSoftFlags }) {
+function Legend({ hasPauses, hasSoftFlags, hasWeakLanguage }) {
   return (
     <div className="mt-[24px] pt-[16px] border-t border-border flex flex-wrap gap-[16px]">
       <div className="flex items-center gap-[6px]">
@@ -143,6 +174,12 @@ function Legend({ hasPauses, hasSoftFlags }) {
             <span className="text-caption text-text-muted">End-sentence pause</span>
           </div>
         </>
+      )}
+      {hasWeakLanguage && (
+        <div className="flex items-center gap-[6px]">
+          <div className="w-[8px] h-[8px] rounded-sm flex-shrink-0" style={{ backgroundColor: '#e8eaf0' }} />
+          <span className="text-caption text-text-muted">Weak language</span>
+        </div>
       )}
     </div>
   )

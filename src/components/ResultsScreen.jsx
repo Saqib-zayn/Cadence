@@ -196,6 +196,7 @@ export default function ResultsScreen({ onGoAgain }) {
       },
       transcript: transcript.text,
       feedbackPoints: llmData?.feedbackPoints || [],
+      weakLanguageCount: llmData?.weakLanguage?.length || 0,
       isWeeklyChallenge: state?.isWeeklyChallenge || false,
     });
   }, [llmStatus, llmData]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -237,6 +238,8 @@ export default function ResultsScreen({ onGoAgain }) {
 
   // Confirmed soft filler positions from LLM (amber-bg highlight)
   const confirmedSoftFillerIndices = new Set(llmData?.confirmedSoftFillerPositions || []);
+
+  const weakLanguage = llmData?.weakLanguage || [];
 
   const feedbackPoints =
     llmStatus === 'done' && llmData?.feedbackPoints?.length
@@ -363,6 +366,7 @@ export default function ResultsScreen({ onGoAgain }) {
                   confirmedSoftFillerIndices={confirmedSoftFillerIndices}
                   badPauseIndices={det.badPauseIndices}
                   goodPauseIndices={det.goodPauseIndices}
+                  weakLanguage={weakLanguage}
                 />
               ) : transcriptText ? (
                 <TranscriptDisplay
@@ -398,6 +402,21 @@ export default function ResultsScreen({ onGoAgain }) {
                 ))
               )}
             </div>
+
+            {/* Weak language flags */}
+            {llmStatus === 'done' && llmData?.weakLanguage?.length > 0 && (
+              <div className="mb-[24px]">
+                <p className="text-caption text-text-muted uppercase tracking-[0.06em] mb-[12px]">Watch your language</p>
+                <div className="flex flex-col gap-[12px]">
+                  {llmData.weakLanguage.slice(0, 3).map((item, i) => (
+                    <div key={i} className="pl-[16px] border-l-[3px] py-[4px]" style={{ borderColor: '#c5c9d8' }}>
+                      <p className="text-body-medium text-text-primary">{item.phrase}</p>
+                      <p className="text-caption text-text-secondary">{item.suggestion}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* One-line summary + retry focus */}
             {llmStatus === 'done' && (llmData?.oneLineSummary || llmData?.suggestedRetryFocus) && (

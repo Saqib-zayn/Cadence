@@ -65,6 +65,7 @@ const SCHEMA_SPEC = `{
   "structure": {"score": <0-15>, "reason": "<one sentence>"},
   "authority": {"score": <0-5>, "reason": "<one sentence>"},
   "softFillerClassification": [{"position": <int>, "word": "<word>", "isFiller": <true|false>}],
+  "weakLanguage": [{"phrase": "<exact phrase from transcript>", "startIndex": <0-based word position>, "suggestion": "<stronger replacement>"}],
   "feedbackPoints": [{"type": "strength"|"improvement", "message": "<concise sentence under 100 chars>"}],
   "oneLineSummary": "<15 words or fewer>",
   "suggestedRetryFocus": "<one actionable tip under 80 chars>"
@@ -122,6 +123,7 @@ clarityOfThought (0-20): coherence and ease of understanding — penalise rambli
 structure (0-15): logical flow, opening and closing — penalise unfinished or disorganised thoughts
 authority (0-5): confidence and command of the topic — penalise hedging or uncertain delivery
 
+weakLanguage: identify phrases that weaken the response — trailing or vague phrases such as "and yeah", "and stuff", "or whatever", "you know what I mean", "I guess", "kind of", "sort of", "things like that", "stuff like that". Only flag when they genuinely reduce impact. Return startIndex as the 0-based word position of the first word of the phrase in the transcript. Maximum 3 flags. Return an empty array if none found. Each confirmed weak language instance should reduce your clarityOfThought score by 2 points and your structure score by 1 point. Cap the total weak language penalty at 6 points across both fields combined.
 feedbackPoints: exactly 2-3 items mixing strengths and improvements; be specific to the actual content.
 oneLineSummary: a single plain-language summary of the response quality, 15 words or fewer.
 suggestedRetryFocus: one concrete thing the speaker should focus on in their next attempt.
@@ -206,6 +208,17 @@ ${SCHEMA_SPEC}`;
   const oneLineSummary      = typeof llm.oneLineSummary === 'string'      ? llm.oneLineSummary.trim()      : '';
   const suggestedRetryFocus = typeof llm.suggestedRetryFocus === 'string' ? llm.suggestedRetryFocus.trim() : '';
 
+  const weakLanguage = Array.isArray(llm.weakLanguage)
+    ? llm.weakLanguage
+        .slice(0, 3)
+        .filter(e => typeof e?.phrase === 'string' && Number.isInteger(e?.startIndex) && e.startIndex >= 0)
+        .map(e => ({
+          phrase:      String(e.phrase).trim(),
+          startIndex:  e.startIndex,
+          suggestion:  typeof e.suggestion === 'string' ? e.suggestion.trim() : '',
+        }))
+    : [];
+
   // Max: det(45) + LLM excl. contextFit(55) = 100; contextFit reported but not in total
   const totalScore = det.fillerWordScore + det.pacingScore + det.completionScore
     + clarityScore + naturalWordUsageScore + structureScore + authorityScore;
@@ -221,6 +234,7 @@ ${SCHEMA_SPEC}`;
     authorityScore,
     softFillerClassification,
     confirmedSoftFillerPositions,
+    weakLanguage,
     feedbackPoints,
     oneLineSummary,
     suggestedRetryFocus,

@@ -79,7 +79,6 @@ export default async function handler(req, res) {
 
   const data = await groqRes.json();
 
-  console.log("RAW GROQ RESPONSE:", JSON.stringify(data.words));
   if (!data.words || data.words.length === 0) {
     return res.status(422).json({
       error: "no_speech",
