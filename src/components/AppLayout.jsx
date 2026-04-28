@@ -83,7 +83,7 @@ function DrawerContents({ pathname, onNav, onClose }) {
   );
 }
 
-export default function AppLayout({ children, title = '', rightIcon = null, onRightIconClick }) {
+export default function AppLayout({ children, title = '', rightIcon = null, onRightIconClick, maxWidth = '640px' }) {
   const { sidebarOpen, setSidebarOpen } = useSidebar();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -170,7 +170,7 @@ export default function AppLayout({ children, title = '', rightIcon = null, onRi
           )}
         </header>
 
-        <main className="flex-1 px-[24px] md:px-[48px] xl:px-[80px] pb-[40px]">
+        <main className="flex-1 px-[24px] md:px-[48px] xl:px-[80px] pb-[40px] mx-auto w-full" style={{ maxWidth }}>
           {children}
         </main>
       </div>

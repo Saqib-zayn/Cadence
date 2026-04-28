@@ -178,7 +178,7 @@ export default function ResultsScreen({ onGoAgain }) {
 
   if (!word || !transcript) {
     return (
-      <AppLayout title="Results">
+      <AppLayout title="Results" maxWidth="960px">
         <div className="pt-[32px] text-body text-text-secondary">
           No results yet.{' '}
           <button onClick={() => navigate('/')} className="text-text-primary underline">
@@ -242,7 +242,7 @@ export default function ResultsScreen({ onGoAgain }) {
   }
 
   return (
-    <AppLayout title="Results" rightIcon="share" onRightIconClick={handleShare}>
+    <AppLayout title="Results" rightIcon="share" onRightIconClick={handleShare} maxWidth="960px">
       <div className="pt-[24px] md:pt-[40px]">
         <div className="xl:flex xl:gap-[40px]">
 

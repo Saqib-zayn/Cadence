@@ -195,7 +195,7 @@ export default function ProgressScreen() {
   });
 
   return (
-    <AppLayout title="Progress">
+    <AppLayout title="Progress" maxWidth="1200px">
       <div className="pt-[24px] md:pt-[40px] flex flex-col gap-[24px] md:gap-[32px]">
         <section className="flex flex-col gap-[8px]">
           <div className="flex items-center justify-between gap-[16px] flex-wrap">
