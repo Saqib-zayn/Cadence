@@ -6,14 +6,20 @@ import { getAudio, clearAudio } from '../utils/audioStore';
 const PHRASES = [
   "Counting your ums...",
   "Checking your rhythm...",
-  "Was that a pause or a think?",
+  "Reading your structure...",
   "Measuring your cadence...",
   "Analysing your pacing...",
-  "How many 'basically's was that?",
+  "Sorting fillers from real words...",
+  "Looking for authority...",
+  "Finding your strongest line...",
   "Almost there...",
-  "Finding your filler words...",
-  "That pause was interesting...",
-  "Reading between the words...",
+];
+
+const STAGES = [
+  "Uploading audio",
+  "Transcribing speech",
+  "Reading structure",
+  "Scoring delivery",
 ];
 
 export default function LoadingScreen() {
@@ -21,6 +27,7 @@ export default function LoadingScreen() {
   const navigate = useNavigate();
 
   const [phraseIdx, setPhraseIdx] = useState(() => Math.floor(Math.random() * PHRASES.length));
+  const [stageIdx, setStageIdx] = useState(0);
   const barRef = useRef(null);
   const startTimeRef = useRef(null);
   const doneRef = useRef(false);
@@ -30,6 +37,14 @@ export default function LoadingScreen() {
     const interval = setInterval(() => {
       setPhraseIdx(i => (i + 1) % PHRASES.length);
     }, 1500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Stage label advancement — visual only, advances every ~2s, stops at last stage
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStageIdx(i => Math.min(i + 1, STAGES.length - 1));
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
 
@@ -82,18 +97,38 @@ export default function LoadingScreen() {
 
   return (
     <div className="min-h-dvh bg-background flex flex-col items-center justify-center px-[24px]">
-      {/* Pulse animation */}
-      <div className="relative mb-[48px]">
-        <div className="w-[80px] h-[80px] rounded-full bg-surface-raised animate-pulse" />
-        <div
-          className="absolute inset-0 w-[80px] h-[80px] rounded-full bg-surface-raised opacity-60"
-          style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite 0.3s' }}
-        />
+      <style>{`
+        @keyframes equaliser {
+          0%, 100% { height: 8px; }
+          50%       { height: 40px; }
+        }
+      `}</style>
+
+      {/* CSS audio equaliser */}
+      <div className="flex items-end gap-[6px] mb-[48px]" style={{ height: '40px' }}>
+        {[0, 0.15, 0.3].map((delay, i) => (
+          <div
+            key={i}
+            style={{
+              width: '6px',
+              height: '8px',
+              borderRadius: '9999px',
+              backgroundColor: '#D49A2A',
+              animation: `equaliser 0.8s ease-in-out infinite`,
+              animationDelay: `${delay}s`,
+            }}
+          />
+        ))}
       </div>
 
       {/* Rotating phrase */}
-      <p className="text-body-medium text-text-secondary text-center min-h-[24px] mb-[48px]">
+      <p className="text-body-medium text-text-secondary text-center min-h-[24px] mb-[12px]">
         {PHRASES[phraseIdx]}
+      </p>
+
+      {/* Stage label */}
+      <p className="text-caption text-text-muted text-center mb-[36px]">
+        {STAGES[stageIdx]}
       </p>
 
       {/* Progress bar */}
