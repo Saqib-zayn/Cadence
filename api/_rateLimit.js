@@ -1,4 +1,5 @@
 import { Redis } from "@upstash/redis";
+import { timingSafeEqual } from 'node:crypto';
 import process from "node:process";
 
 const LIMITS = {
@@ -20,7 +21,15 @@ function getRedis() {
   return redis;
 }
 
-export async function checkRateLimit(deviceId, endpoint) {
+export async function checkRateLimit(deviceId, endpoint, bypassToken) {
+  if (bypassToken) {
+    const a = Buffer.from(bypassToken);
+    const b = Buffer.from(process.env.DEV_PASSWORD || '');
+    if (a.length > 0 && a.length === b.length && timingSafeEqual(a, b)) {
+      return { allowed: true, remaining: 999 };
+    }
+  }
+
   const limit = LIMITS[endpoint];
 
   if (!limit) {

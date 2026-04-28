@@ -17,7 +17,11 @@ export default async function handler(req, res) {
   }
 
   const deviceId = req.headers["x-device-id"];
-  const rateLimit = await checkRateLimit(deviceId, "generate-context");
+  const rateLimit = await checkRateLimit(
+    deviceId,
+    "generate-context",
+    req.headers["x-dev-token"],
+  );
 
   if (!rateLimit.allowed) {
     return res.status(429).json({ error: "limit_reached" });
@@ -53,11 +57,11 @@ export default async function handler(req, res) {
         {
           role: "system",
           content:
-            "You generate short 2-sentence speaking scenarios. Be specific and direct. Never exceed 2 sentences.",
+            "You generate speaking prompts for a speech trainer. The prompt must put the user directly in a situation (do not just default to one, be creative) and tell them what to talk about. Maximum 2-3 sentences. The user is always the speaker — never a spectator. Write in second person (You are..., You're...). Be direct and specific.",
         },
         {
           role: "user",
-          content: `Generate a 2-sentence speaking scenario for '${word}' in a ${category} context. The user must use this word naturally.`,
+          content: `Create a 1-2 sentence speaking prompt for the word '${word}' in a ${category} context. Format: 'You're [situation]. Talk about [topic] using the word ${word}.' Never exceed 2 sentences.`,
         },
       ],
       temperature: 0.7,

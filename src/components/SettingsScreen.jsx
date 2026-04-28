@@ -78,13 +78,12 @@ export default function SettingsScreen() {
   const [category, setCategory] = useState(
     () => localStorage.getItem('cadence_category') || 'random'
   );
-  const [challengeMode, setChallengeMode] = useState(
-    () => localStorage.getItem('cadence_challenge_mode') === '1'
-  );
-  const [groqKey, setGroqKey] = useState(
-    () => localStorage.getItem('cadence_groq_key') || ''
-  );
   const [clearState, setClearState] = useState('idle'); // idle | confirm
+  const [devPassword, setDevPassword] = useState('');
+  const [devStatus, setDevStatus] = useState(
+    () => localStorage.getItem('cadence_dev_mode') === 'true' ? 'active' : 'idle'
+  );
+  const [devLoading, setDevLoading] = useState(false);
 
   function updateDifficulty(val) {
     setDifficulty(val);
@@ -96,19 +95,36 @@ export default function SettingsScreen() {
     localStorage.setItem('cadence_category', val);
   }
 
-  function toggleChallengeMode() {
-    const next = !challengeMode;
-    setChallengeMode(next);
-    localStorage.setItem('cadence_challenge_mode', next ? '1' : '0');
+  async function handleDevUnlock() {
+    if (!devPassword.trim() || devLoading) return;
+    setDevLoading(true);
+    try {
+      const res = await fetch('/api/verify-dev', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: devPassword }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        localStorage.setItem('cadence_dev_mode', 'true');
+        localStorage.setItem('cadence_dev_token', devPassword);
+        setDevStatus('active');
+        setDevPassword('');
+      } else {
+        setDevStatus('wrong');
+      }
+    } catch {
+      setDevStatus('wrong');
+    } finally {
+      setDevLoading(false);
+    }
   }
 
-  function updateGroqKey(val) {
-    setGroqKey(val);
-    if (val.trim()) {
-      localStorage.setItem('cadence_groq_key', val.trim());
-    } else {
-      localStorage.removeItem('cadence_groq_key');
-    }
+  function handleDevLock() {
+    localStorage.removeItem('cadence_dev_mode');
+    localStorage.removeItem('cadence_dev_token');
+    setDevStatus('idle');
+    setDevPassword('');
   }
 
   function handleClear() {
@@ -117,7 +133,7 @@ export default function SettingsScreen() {
       return;
     }
     // Confirmed
-    const keysToKeep = ['cadence_difficulty', 'cadence_category', 'cadence_challenge_mode', 'cadence_groq_key', 'cadence_device_id', 'cadence_mic_shown'];
+    const keysToKeep = ['cadence_difficulty', 'cadence_category', 'cadence_device_id', 'cadence_mic_shown'];
     Object.keys(localStorage)
       .filter(k => k.startsWith('cadence_') && !keysToKeep.includes(k))
       .forEach(k => localStorage.removeItem(k));
@@ -135,41 +151,55 @@ export default function SettingsScreen() {
             <SettingRow label="Context" description="The scenario you speak to">
               <SegmentedControl options={CONTEXTS} value={category} onChange={updateCategory} />
             </SettingRow>
-            <SettingRow label="Difficulty" description="Words you'll be given">
+            <SettingRow label="Difficulty" description="Words you'll be given" border={false}>
               <SegmentedControl options={DIFFICULTIES} value={difficulty} onChange={updateDifficulty} colorize />
-            </SettingRow>
-            <SettingRow label="Challenge mode" description="Word appears after you hit record" border={false}>
-              <Toggle checked={challengeMode} onChange={toggleChallengeMode} />
             </SettingRow>
           </div>
         </section>
 
-        {/* Unlimited rounds section */}
+        {/* DEVELOPER section */}
         <section className="flex flex-col gap-[8px]">
-          <SectionHeader>Unlimited rounds</SectionHeader>
+          <SectionHeader>Developer</SectionHeader>
           <div className="bg-surface border border-border rounded-lg shadow-sm p-[20px] flex flex-col gap-[12px]">
             <div className="flex flex-col gap-[2px]">
-              <span className="text-body-medium text-text-primary">Groq API key</span>
-              <span className="text-caption text-text-muted">
-                Removes the daily limit. Your key stays on your device.
-              </span>
+              <span className="text-body-medium text-text-primary">Dev mode</span>
+              <span className="text-caption text-text-muted">Unlock unlimited rounds for testing</span>
             </div>
-            <input
-              type="password"
-              value={groqKey}
-              onChange={e => updateGroqKey(e.target.value)}
-              placeholder="gsk_..."
-              autoComplete="off"
-              className="w-full bg-surface-raised rounded-md px-[12px] py-[12px] text-body text-text-primary placeholder:text-text-muted border border-border focus:outline-none focus:ring-1 focus:ring-border"
-            />
-            <a
-              href="https://console.groq.com/keys"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-caption text-green-text hover:underline w-fit"
-            >
-              Get a free key at groq.com →
-            </a>
+            {devStatus === 'active' ? (
+              <div className="flex items-center justify-between gap-[12px]">
+                <span className="text-caption text-green-text">Dev mode active ✓</span>
+                <button
+                  onClick={handleDevLock}
+                  className="flex-shrink-0 px-[12px] py-[8px] bg-surface-raised border border-border rounded-md text-label text-text-primary"
+                >
+                  Lock
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-[8px]">
+                  <input
+                    type="password"
+                    value={devPassword}
+                    onChange={e => { setDevPassword(e.target.value); if (devStatus === 'wrong') setDevStatus('idle'); }}
+                    onKeyDown={e => e.key === 'Enter' && handleDevUnlock()}
+                    placeholder="Enter password"
+                    autoComplete="off"
+                    className="flex-1 bg-surface-raised rounded-md px-[12px] py-[12px] text-body text-text-primary placeholder:text-text-muted border border-border focus:outline-none focus:ring-1 focus:ring-border"
+                  />
+                  <button
+                    onClick={handleDevUnlock}
+                    disabled={devLoading || !devPassword.trim()}
+                    className="flex-shrink-0 px-[12px] py-[8px] bg-surface-raised border border-border rounded-md text-label text-text-primary disabled:opacity-50"
+                  >
+                    {devLoading ? '...' : 'Unlock'}
+                  </button>
+                </div>
+                {devStatus === 'wrong' && (
+                  <span className="text-caption text-red-text">Incorrect password</span>
+                )}
+              </>
+            )}
           </div>
         </section>
 

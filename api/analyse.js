@@ -76,7 +76,7 @@ export default async function handler(req, res) {
   }
 
   const deviceId = req.headers['x-device-id'];
-  const rateLimit = await checkRateLimit(deviceId, 'analyse');
+  const rateLimit = await checkRateLimit(deviceId, 'analyse', req.headers['x-dev-token']);
   if (!rateLimit.allowed) {
     return res.status(429).json({ error: 'limit_reached' });
   }

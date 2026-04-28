@@ -3,8 +3,8 @@ import { getDeviceId } from './deviceId.js';
 const LIMIT_MESSAGE = "You've hit today's free practice limit. Nice work. Come back tomorrow for more rounds.";
 
 function extraHeaders() {
-  const groqKey = localStorage.getItem('cadence_groq_key');
-  return groqKey ? { 'x-groq-key': groqKey } : {};
+  const devToken = localStorage.getItem('cadence_dev_token');
+  return devToken ? { 'x-dev-token': devToken } : {};
 }
 
 function handleResponse(res) {

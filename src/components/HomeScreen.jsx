@@ -123,37 +123,39 @@ export default function HomeScreen({ onStartRound }) {
           </div>
         </div>
 
-        {/* Settings pills */}
-        <div className="flex items-center gap-[8px] mb-[24px] flex-wrap">
+        <div className="text-center">
+          {/* Settings pills */}
+          <div className="flex items-center justify-center gap-[8px] mb-[24px] flex-wrap">
+            <button
+              onClick={cycleDifficulty}
+              className={`text-label px-[10px] py-[4px] rounded-full ${DIFFICULTY_STYLES[difficulty]}`}
+            >
+              {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+            </button>
+            <button
+              onClick={cycleCategory}
+              className="text-label px-[10px] py-[4px] rounded-full bg-surface-raised text-text-secondary"
+            >
+              {CATEGORY_LABELS[category]}
+            </button>
+            <span className="text-caption text-text-muted">tap to change</span>
+          </div>
+
+          {/* Start Round CTA */}
           <button
-            onClick={cycleDifficulty}
-            className={`text-label px-[10px] py-[4px] rounded-full ${DIFFICULTY_STYLES[difficulty]}`}
+            onClick={handleStart}
+            disabled={isLoading}
+            className="w-full max-w-[360px] h-[52px] bg-btn-primary-bg text-btn-primary-text text-body-medium rounded-md disabled:opacity-60 mx-auto"
           >
-            {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+            {isLoading ? 'Getting your word...' : isFirstVisit ? 'Start your first round' : 'Start Round'}
           </button>
-          <button
-            onClick={cycleCategory}
-            className="text-label px-[10px] py-[4px] rounded-full bg-surface-raised text-text-secondary"
-          >
-            {CATEGORY_LABELS[category]}
-          </button>
-          <span className="text-caption text-text-muted">tap to change</span>
+
+          {isFirstVisit && (
+            <p className="text-caption text-text-muted mt-[16px] max-w-[360px] mx-auto">
+              No account needed. Your data stays on your device.
+            </p>
+          )}
         </div>
-
-        {/* Start Round CTA */}
-        <button
-          onClick={handleStart}
-          disabled={isLoading}
-          className="w-full max-w-[360px] h-[52px] bg-btn-primary-bg text-btn-primary-text text-body-medium rounded-md disabled:opacity-60"
-        >
-          {isLoading ? 'Getting your word...' : isFirstVisit ? 'Start your first round' : 'Start Round'}
-        </button>
-
-        {isFirstVisit && (
-          <p className="text-caption text-text-muted mt-[16px] max-w-[360px]">
-            No account needed. Your data stays on your device.
-          </p>
-        )}
       </div>
     </AppLayout>
   );
