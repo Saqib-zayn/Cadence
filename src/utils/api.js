@@ -1,5 +1,10 @@
 import { getDeviceId } from './deviceId.js';
 
+function extraHeaders() {
+  const groqKey = localStorage.getItem('cadence_groq_key');
+  return groqKey ? { 'x-groq-key': groqKey } : {};
+}
+
 export async function generateContext(word, category = 'random') {
   const cacheKey = `cadence_ctx_${word.toLowerCase()}_${category}`;
   const cached = sessionStorage.getItem(cacheKey);
@@ -10,6 +15,7 @@ export async function generateContext(word, category = 'random') {
     headers: {
       'Content-Type': 'application/json',
       'x-device-id': getDeviceId(),
+      ...extraHeaders(),
     },
     body: JSON.stringify({ word, category }),
   });
@@ -28,11 +34,11 @@ export async function sendAudio(blob) {
   const formData = new FormData();
   formData.append('audio', blob, 'recording.webm');
 
-  console.log('Audio blob:', blob.type, blob.size, 'bytes')
   const res = await fetch('/api/transcribe', {
     method: 'POST',
     headers: {
       'x-device-id': getDeviceId(),
+      ...extraHeaders(),
     },
     body: formData,
   });
@@ -45,14 +51,15 @@ export async function sendAudio(blob) {
   return res.json();
 }
 
-export async function analyseRound({ transcript, word, context, pauseData }) {
+export async function analyseRound({ transcript, word, context, pauseData, softFillerFlags }) {
   const res = await fetch('/api/analyse', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'x-device-id': getDeviceId(),
+      ...extraHeaders(),
     },
-    body: JSON.stringify({ transcript, word, context, pauseData }),
+    body: JSON.stringify({ transcript, word, context, pauseData, softFillerFlags }),
   });
 
   if (!res.ok) {

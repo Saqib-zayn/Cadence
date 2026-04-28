@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AppLayout from './AppLayout';
 import TranscriptDisplay from './TranscriptDisplay';
+import ShareCard from './ShareCard';
 import scoreDeterministic from '../utils/scoring';
 import { analyseRound } from '../utils/api';
+import { generateShareCard, generateShareText, triggerShare } from '../utils/shareCard';
 
 const DIFFICULTY_STYLES = {
   easy: 'bg-green-bg text-green-text',
@@ -34,7 +36,7 @@ function deterministicFeedback(scores) {
 function ScoreBreakdownBar({ scores, naturalWordScore, clarityScore, llmLoading }) {
   const segments = [
     { label: 'Fluency',    score: scores.fillerWordScore,      max: 30, trackClass: 'bg-red-bg' },
-    { label: 'Pacing',     score: scores.pauseQualityScore,    max: 20, trackClass: 'bg-amber-bg' },
+    { label: 'Pacing',     score: scores.pauseQualityScore,    max: 15, trackClass: 'bg-amber-bg' },
     { label: 'Completion', score: scores.sentenceCompletionScore, max: 10, trackClass: 'bg-surface-raised' },
     { label: 'Word Use',   score: naturalWordScore,             max: 20, trackClass: 'bg-surface-raised', loading: llmLoading },
     { label: 'Clarity',    score: clarityScore,                 max: 20, trackClass: 'bg-surface-raised', loading: llmLoading },
@@ -105,6 +107,8 @@ export default function ResultsScreen({ onGoAgain }) {
   const [llmStatus, setLlmStatus]   = useState('loading');
   const [llmData, setLlmData]       = useState(null);
   const [jsonOpen, setJsonOpen]     = useState(false);
+  const [sharing, setSharing]       = useState(false);
+  const shareCardRef                = useRef(null);
 
   // Run deterministic scoring synchronously on mount — frontend layer per spec
   const det = useMemo(() => {
@@ -112,6 +116,19 @@ export default function ResultsScreen({ onGoAgain }) {
     const scores = scoreDeterministic(words, volumeData);
     const deterministicTotal =
       scores.fillerWordScore + scores.pauseQualityScore + scores.sentenceCompletionScore;
+
+    // Build word-index sets for transcript annotation
+    const hardFillerIndices = new Set();
+    scores.fillerWordsFound.forEach(({ word: fw, position }) => {
+      const tokenCount = fw.split(/\s+/).length;
+      for (let i = 0; i < tokenCount; i++) hardFillerIndices.add(position + i);
+    });
+
+    const softFillerIndices = new Set();
+    scores.softFillerFlags.forEach(({ word: fw, position }) => {
+      const tokenCount = fw.split(/\s+/).length;
+      for (let i = 0; i < tokenCount; i++) softFillerIndices.add(position + i);
+    });
 
     const badPauseIndices  = new Set();
     const goodPauseIndices = new Set();
@@ -123,7 +140,7 @@ export default function ResultsScreen({ onGoAgain }) {
       }
     });
 
-    return { scores, deterministicTotal, badPauseIndices, goodPauseIndices };
+    return { scores, deterministicTotal, hardFillerIndices, softFillerIndices, badPauseIndices, goodPauseIndices };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Call /api/analyse once on mount
@@ -133,7 +150,9 @@ export default function ResultsScreen({ onGoAgain }) {
       transcript: transcript.text || '',
       word: word.word,
       context,
-      pauseData: det.scores.pauseAnnotations,
+      // Only send scored (bad/good) pauses to keep payload lean
+      pauseData: det.scores.pauseAnnotations.filter(p => p.type !== 'neutral'),
+      softFillerFlags: det.scores.softFillerFlags,
     })
       .then(data => {
         setLlmData(data);
@@ -176,12 +195,8 @@ export default function ResultsScreen({ onGoAgain }) {
   const delta             = totalScore - personalBest;
   const showBeatNudge     = llmStatus === 'done' && personalBest > 0 && totalScore < personalBest;
 
-  // Filler indices from deterministic layer; LLM positions used only in plain-text fallback
-  const fillerIndices = new Set();
-  det.scores.fillerWordsFound.forEach(({ word: fw, position }) => {
-    const tokenCount = fw.split(/\s+/).length;
-    for (let i = 0; i < tokenCount; i++) fillerIndices.add(position + i);
-  });
+  // Confirmed soft filler positions from LLM (amber-bg highlight)
+  const confirmedSoftFillerIndices = new Set(llmData?.confirmedSoftFillerPositions || []);
 
   const feedbackPoints =
     llmStatus === 'done' && llmData?.feedbackPoints?.length
@@ -207,8 +222,16 @@ export default function ResultsScreen({ onGoAgain }) {
     }
   }
 
-  function handleShare() {
-    alert('Sharing coming soon');
+  async function handleShare() {
+    if (sharing || !shareCardRef.current) return;
+    setSharing(true);
+    try {
+      const blobUrl = await generateShareCard(shareCardRef.current);
+      const text = generateShareText(totalScore, word.word);
+      await triggerShare(blobUrl, text);
+    } finally {
+      setSharing(false);
+    }
   }
 
   return (
@@ -290,7 +313,9 @@ export default function ResultsScreen({ onGoAgain }) {
               ) : transcriptWords.length > 0 ? (
                 <TranscriptDisplay
                   words={transcriptWords}
-                  fillerIndices={fillerIndices}
+                  hardFillerIndices={det.hardFillerIndices}
+                  softFillerIndices={det.softFillerIndices}
+                  confirmedSoftFillerIndices={confirmedSoftFillerIndices}
                   badPauseIndices={det.badPauseIndices}
                   goodPauseIndices={det.goodPauseIndices}
                 />
@@ -360,9 +385,10 @@ export default function ResultsScreen({ onGoAgain }) {
               </button>
               <button
                 onClick={handleShare}
-                className="w-full h-[52px] md:h-[56px] xl:h-[52px] bg-btn-secondary-bg text-btn-secondary-text text-body-medium rounded-md flex items-center justify-center active:opacity-90 transition-opacity"
+                disabled={sharing}
+                className="w-full h-[52px] md:h-[56px] xl:h-[52px] bg-btn-secondary-bg text-btn-secondary-text text-body-medium rounded-md flex items-center justify-center gap-[6px] active:opacity-90 transition-opacity disabled:opacity-50"
               >
-                Share score
+                {sharing ? 'Generating…' : 'Share score'}
               </button>
             </div>
 
@@ -390,6 +416,21 @@ export default function ResultsScreen({ onGoAgain }) {
 
           </div>
         </div>
+      </div>
+
+      {/* Hidden share card — captured by html2canvas on share */}
+      <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
+        <ShareCard
+          ref={shareCardRef}
+          roundData={{
+            word: word.word,
+            score: totalScore,
+            feedbackPoints: llmStatus === 'done' && llmData?.feedbackPoints?.length
+              ? llmData.feedbackPoints
+              : [],
+            fillerCount: det.scores.fillerWordsFound.length,
+          }}
+        />
       </div>
     </AppLayout>
   );

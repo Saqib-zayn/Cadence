@@ -10,8 +10,11 @@ import SettingsScreen from './components/SettingsScreen';
 import MicPermissionScreen from './components/MicPermissionScreen';
 
 function pickWord(bank, difficulty, recentWords) {
-  const pool = bank.filter(w => w.difficulty === difficulty && !recentWords.includes(w.word));
-  const candidates = pool.length > 0 ? pool : bank.filter(w => w.difficulty === difficulty);
+  const eligible = difficulty === 'mixed'
+    ? bank
+    : bank.filter(w => w.difficulty === difficulty);
+  const pool = eligible.filter(w => !recentWords.includes(w.word));
+  const candidates = pool.length > 0 ? pool : eligible;
   if (candidates.length === 0) return bank[Math.floor(Math.random() * bank.length)];
   return candidates[Math.floor(Math.random() * candidates.length)];
 }

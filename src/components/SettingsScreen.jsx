@@ -1,6 +1,76 @@
 import { useState } from 'react';
 import AppLayout from './AppLayout';
 
+const CONTEXTS = ['interview', 'casual', 'presentation', 'random'];
+const DIFFICULTIES = ['easy', 'medium', 'hard', 'mixed'];
+
+const DIFFICULTY_ACTIVE = {
+  easy: 'bg-green-bg text-green-text',
+  medium: 'bg-amber-bg text-amber-text',
+  hard: 'bg-red-bg text-red-text',
+  mixed: 'bg-surface text-text-primary',
+};
+
+function SegmentedControl({ options, value, onChange, colorize = false }) {
+  return (
+    <div className="flex p-[3px] bg-surface-raised border border-border rounded-lg overflow-x-auto flex-shrink-0">
+      {options.map(opt => {
+        const active = value === opt;
+        const activeClass = colorize && active
+          ? DIFFICULTY_ACTIVE[opt]
+          : active
+            ? 'bg-background border border-border shadow-sm text-text-primary'
+            : 'text-text-secondary';
+        return (
+          <button
+            key={opt}
+            onClick={() => onChange(opt)}
+            className={`px-[12px] py-[6px] rounded-md text-label whitespace-nowrap transition-colors ${activeClass}`}
+          >
+            {opt.charAt(0).toUpperCase() + opt.slice(1)}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function SectionHeader({ children }) {
+  return (
+    <h2 className="text-caption text-text-muted uppercase tracking-[0.08em] pl-[4px]">
+      {children}
+    </h2>
+  );
+}
+
+function SettingRow({ label, description, children, border = true }) {
+  return (
+    <div className={`flex flex-col md:flex-row md:items-center justify-between gap-[16px] ${border ? 'pb-[20px] border-b border-border last:pb-0 last:border-0' : ''}`}>
+      <div className="flex flex-col gap-[2px]">
+        <span className="text-body-medium text-text-primary">{label}</span>
+        {description && <span className="text-caption text-text-muted">{description}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Toggle({ checked, onChange }) {
+  return (
+    <button
+      role="switch"
+      aria-checked={checked}
+      onClick={onChange}
+      className={`flex-shrink-0 w-[44px] h-[24px] rounded-full relative transition-colors ${checked ? 'bg-btn-primary-bg' : 'bg-border'}`}
+    >
+      <span
+        className="absolute top-[2px] left-[2px] w-[20px] h-[20px] rounded-full bg-btn-primary-text shadow-sm transition-transform"
+        style={{ transform: checked ? 'translateX(20px)' : 'translateX(0)' }}
+      />
+    </button>
+  );
+}
+
 export default function SettingsScreen() {
   const [difficulty, setDifficulty] = useState(
     () => localStorage.getItem('cadence_difficulty') || 'easy'
@@ -11,6 +81,10 @@ export default function SettingsScreen() {
   const [challengeMode, setChallengeMode] = useState(
     () => localStorage.getItem('cadence_challenge_mode') === '1'
   );
+  const [groqKey, setGroqKey] = useState(
+    () => localStorage.getItem('cadence_groq_key') || ''
+  );
+  const [clearState, setClearState] = useState('idle'); // idle | confirm
 
   function updateDifficulty(val) {
     setDifficulty(val);
@@ -28,74 +102,114 @@ export default function SettingsScreen() {
     localStorage.setItem('cadence_challenge_mode', next ? '1' : '0');
   }
 
+  function updateGroqKey(val) {
+    setGroqKey(val);
+    if (val.trim()) {
+      localStorage.setItem('cadence_groq_key', val.trim());
+    } else {
+      localStorage.removeItem('cadence_groq_key');
+    }
+  }
+
+  function handleClear() {
+    if (clearState === 'idle') {
+      setClearState('confirm');
+      return;
+    }
+    // Confirmed
+    const keysToKeep = ['cadence_difficulty', 'cadence_category', 'cadence_challenge_mode', 'cadence_groq_key', 'cadence_device_id', 'cadence_mic_shown'];
+    Object.keys(localStorage)
+      .filter(k => k.startsWith('cadence_') && !keysToKeep.includes(k))
+      .forEach(k => localStorage.removeItem(k));
+    setClearState('idle');
+  }
+
   return (
     <AppLayout title="Settings">
-      <div className="pt-[32px] md:pt-[48px] max-w-[520px] space-y-[24px]">
+      <div className="pt-[32px] md:pt-[48px] max-w-[640px] flex flex-col gap-[32px]">
 
-        {/* Difficulty */}
-        <div>
-          <div className="text-label text-text-secondary mb-[12px]">Difficulty</div>
-          <div className="flex gap-[8px]">
-            {['easy', 'medium', 'hard'].map(d => (
-              <button
-                key={d}
-                onClick={() => updateDifficulty(d)}
-                className={`h-[40px] px-[16px] rounded-md text-body-medium transition-colors ${
-                  difficulty === d
-                    ? 'bg-btn-primary-bg text-btn-primary-text'
-                    : 'bg-btn-secondary-bg text-btn-secondary-text'
-                }`}
-              >
-                {d.charAt(0).toUpperCase() + d.slice(1)}
-              </button>
-            ))}
+        {/* ROUND section */}
+        <section className="flex flex-col gap-[8px]">
+          <SectionHeader>Round</SectionHeader>
+          <div className="bg-surface border border-border rounded-lg shadow-sm p-[20px] flex flex-col gap-[20px]">
+            <SettingRow label="Context" description="The scenario you speak to">
+              <SegmentedControl options={CONTEXTS} value={category} onChange={updateCategory} />
+            </SettingRow>
+            <SettingRow label="Difficulty" description="Words you'll be given">
+              <SegmentedControl options={DIFFICULTIES} value={difficulty} onChange={updateDifficulty} colorize />
+            </SettingRow>
+            <SettingRow label="Challenge mode" description="Word appears after you hit record" border={false}>
+              <Toggle checked={challengeMode} onChange={toggleChallengeMode} />
+            </SettingRow>
           </div>
-        </div>
+        </section>
 
-        {/* Context */}
-        <div>
-          <div className="text-label text-text-secondary mb-[12px]">Context</div>
-          <div className="flex flex-wrap gap-[8px]">
-            {['random', 'interview', 'casual', 'presentation'].map(c => (
-              <button
-                key={c}
-                onClick={() => updateCategory(c)}
-                className={`h-[40px] px-[16px] rounded-md text-body-medium transition-colors ${
-                  category === c
-                    ? 'bg-btn-primary-bg text-btn-primary-text'
-                    : 'bg-btn-secondary-bg text-btn-secondary-text'
-                }`}
-              >
-                {c.charAt(0).toUpperCase() + c.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Challenge mode */}
-        <div className="bg-surface border border-border rounded-lg p-[20px] shadow-sm">
-          <div className="flex items-start justify-between gap-[16px]">
-            <div>
-              <div className="text-body-medium text-text-primary">Challenge mode</div>
-              <div className="text-caption text-text-muted mt-[4px]">
-                Word appears after you hit record
-              </div>
+        {/* Unlimited rounds section */}
+        <section className="flex flex-col gap-[8px]">
+          <SectionHeader>Unlimited rounds</SectionHeader>
+          <div className="bg-surface border border-border rounded-lg shadow-sm p-[20px] flex flex-col gap-[12px]">
+            <div className="flex flex-col gap-[2px]">
+              <span className="text-body-medium text-text-primary">Groq API key</span>
+              <span className="text-caption text-text-muted">
+                Removes the daily limit. Your key stays on your device.
+              </span>
             </div>
-            <button
-              onClick={toggleChallengeMode}
-              className={`flex-shrink-0 w-[44px] h-[24px] rounded-full relative transition-colors ${
-                challengeMode ? 'bg-btn-primary-bg' : 'bg-border'
-              }`}
-              aria-checked={challengeMode}
-              role="switch"
+            <input
+              type="password"
+              value={groqKey}
+              onChange={e => updateGroqKey(e.target.value)}
+              placeholder="gsk_..."
+              autoComplete="off"
+              className="w-full bg-surface-raised rounded-md px-[12px] py-[12px] text-body text-text-primary placeholder:text-text-muted border border-border focus:outline-none focus:ring-1 focus:ring-border"
+            />
+            <a
+              href="https://console.groq.com/keys"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-caption text-green-text hover:underline w-fit"
             >
-              <span
-                className="absolute top-[2px] left-[2px] w-[20px] h-[20px] rounded-full bg-btn-primary-text shadow-sm transition-transform"
-                style={{ transform: challengeMode ? 'translateX(20px)' : 'translateX(0)' }}
-              />
-            </button>
+              Get a free key at groq.com →
+            </a>
           </div>
-        </div>
+        </section>
+
+        {/* DATA section */}
+        <section className="flex flex-col gap-[8px]">
+          <SectionHeader>Data</SectionHeader>
+          <div className="bg-surface border border-border rounded-lg shadow-sm p-[20px]">
+            <SettingRow label="Clear all rounds" description="Permanently deletes your scores and streaks" border={false}>
+              {clearState === 'idle' ? (
+                <button
+                  onClick={handleClear}
+                  className="flex-shrink-0 px-[16px] py-[8px] bg-surface-raised border border-border rounded-md text-label text-red-text hover:bg-red-bg transition-colors"
+                >
+                  Clear
+                </button>
+              ) : (
+                <div className="flex items-center gap-[8px] flex-shrink-0">
+                  <button
+                    onClick={() => setClearState('idle')}
+                    className="px-[12px] py-[8px] bg-surface-raised border border-border rounded-md text-label text-text-secondary"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleClear}
+                    className="px-[12px] py-[8px] bg-red-bg border border-border rounded-md text-label text-red-text"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              )}
+            </SettingRow>
+          </div>
+        </section>
+
+        {/* About — flat, no card */}
+        <section className="pt-[32px] border-t border-border flex flex-col gap-[2px]">
+          <span className="text-body-medium text-text-secondary">Cadence</span>
+          <span className="text-caption text-text-muted">Version 1.0.0</span>
+        </section>
 
       </div>
     </AppLayout>

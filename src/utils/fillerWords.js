@@ -1,16 +1,18 @@
-export const FILLER_WORDS = [
-  "um",
-  "uh",
+// Always counted — unambiguous filler sounds with no legitimate use
+export const HARD_FILLERS = ["um", "uh", "erm", "hmm", "ah"]
+
+// Context-dependent — only flagged when a qualifying condition is met
+export const SOFT_FILLERS = [
   "like",
-  "you know",
   "so",
   "basically",
   "literally",
   "right",
-  "kind of",
-  "sort of",
   "actually",
   "honestly",
-  "I mean",
-  "you know what I mean"
+  "i mean",
+  "you know",
+  "kind of",
+  "sort of",
+  "you know what i mean",
 ]
