@@ -1,7 +1,7 @@
 import { HARD_FILLERS, SOFT_FILLERS } from "./fillerWords.js"
 
-const MAX_FILLER_SCORE = 30
-const MAX_PAUSE_SCORE  = 15   // starts at 15, deduct 3 per bad pause (was 20/always-full due to volume bug)
+const MAX_FILLER_SCORE   = 20
+const MAX_PACING_SCORE   = 15
 const MAX_SENTENCE_SCORE = 10
 
 const INCOMPLETE_CLAUSE_ENDINGS = new Set([
@@ -154,6 +154,14 @@ export const findSoftFillerFlags = (transcript = []) => {
 export const scoreFillerWords = (hardFillerCount) =>
   clamp(MAX_FILLER_SCORE - hardFillerCount * 3, 0, MAX_FILLER_SCORE)
 
+export const scorePacing = (wordCount, durationSec) => {
+  if (!durationSec || durationSec <= 0 || !wordCount) return 0
+  const wpm = (wordCount / durationSec) * 60
+  if (wpm >= 110 && wpm <= 160) return MAX_PACING_SCORE
+  if ((wpm >= 90 && wpm < 110) || (wpm > 160 && wpm <= 180)) return 10
+  return 5
+}
+
 // ─── FIX 2: pause detection rewrite ─────────────────────────────────────────
 //
 // Primary source: Whisper word timestamps (reliable gap data)
@@ -235,18 +243,6 @@ export const analyzePauses = (transcript = [], volumeData = []) => {
   return annotations
 }
 
-export const scorePauseQuality = (pauseAnnotations = []) => {
-  let score = MAX_PAUSE_SCORE
-
-  for (const p of pauseAnnotations) {
-    if (p.type === "bad") {
-      score -= (typeof p.penalty === "number" ? p.penalty : 3)
-    }
-  }
-
-  return Math.max(0, score)
-}
-
 // ─── Sentence completion (unchanged) ─────────────────────────────────────────
 
 export const scoreSentenceCompletion = (transcript = []) => {
@@ -269,21 +265,20 @@ export const scoreSentenceCompletion = (transcript = []) => {
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 
-export const scoreDeterministic = (transcript = [], volumeData = []) => {
+export const scoreDeterministic = (transcript = [], volumeData = [], durationSec = 0) => {
   const hardFillerMatches  = findHardFillers(transcript)
   const softFillerFlags    = findSoftFillerFlags(transcript)
   const pauseAnnotations   = analyzePauses(transcript, volumeData)
 
-  const hardFillerCount        = hardFillerMatches.length
-  const fillerWordScore        = scoreFillerWords(hardFillerCount)
-  const pauseQualityScore      = scorePauseQuality(pauseAnnotations)
+  const hardFillerCount         = hardFillerMatches.length
+  const fillerWordScore         = scoreFillerWords(hardFillerCount)
+  const pacingScore             = scorePacing(transcript.length, durationSec)
   const sentenceCompletionScore = scoreSentenceCompletion(transcript)
 
   return {
     fillerWordScore,
-    pauseQualityScore,
+    pacingScore,
     sentenceCompletionScore,
-    // Kept for backward compat (ResultsScreen uses this for red-highlight indices)
     fillerWordsFound: hardFillerMatches,
     hardFillerCount,
     softFillerFlags,

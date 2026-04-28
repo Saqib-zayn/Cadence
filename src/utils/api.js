@@ -51,7 +51,7 @@ export async function sendAudio(blob) {
   return res.json();
 }
 
-export async function analyseRound({ transcript, word, context, contextCategory, pauseData, softFillerFlags }) {
+export async function analyseRound({ transcript, word, context, contextCategory, transcriptDuration, softFillerFlags }) {
   const res = await fetch('/api/analyse', {
     method: 'POST',
     headers: {
@@ -59,7 +59,7 @@ export async function analyseRound({ transcript, word, context, contextCategory,
       'x-device-id': getDeviceId(),
       ...extraHeaders(),
     },
-    body: JSON.stringify({ transcript, word, context, contextCategory, pauseData, softFillerFlags }),
+    body: JSON.stringify({ transcript, word, context, contextCategory, transcriptDuration, softFillerFlags }),
   });
 
   if (!res.ok) {

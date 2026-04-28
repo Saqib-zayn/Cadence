@@ -10,20 +10,20 @@ const INCOMPLETE_ENDINGS = new Set([
   'so', 'than', 'that', 'the', 'then', 'to', 'when', 'where', 'which', 'while', 'with',
 ]);
 
-// Mirrors scoring.js — hard fillers only, MAX_PAUSE = 15, deduct 3 per bad pause
-function serverDeterministicScore(transcript, pauseData) {
+// Mirrors scoring.js — hard fillers (max 20), pacing WPM (max 15), sentence completion (max 10)
+function serverDeterministicScore(transcript, transcriptDuration) {
   const words = (transcript || '').toLowerCase().replace(/[^\w\s']/g, ' ').trim().split(/\s+/).filter(Boolean);
   const hardFillerCount = words.filter(w => HARD_FILLER_SET.has(w)).length;
-  const fillerWordScore = Math.max(0, Math.min(30, 30 - hardFillerCount * 3));
+  const fillerWordScore = Math.max(0, Math.min(20, 20 - hardFillerCount * 3));
 
-  const annotations = Array.isArray(pauseData) ? pauseData : [];
-  let pauseQualityScore = 15;
-  for (const p of annotations) {
-    if (p?.type === 'bad') {
-      pauseQualityScore -= (typeof p.penalty === 'number' ? p.penalty : 3);
-    }
+  let pacingScore = 0;
+  const dur = Number(transcriptDuration);
+  if (dur > 0 && words.length > 0) {
+    const wpm = (words.length / dur) * 60;
+    if (wpm >= 110 && wpm <= 160) pacingScore = 15;
+    else if ((wpm >= 90 && wpm < 110) || (wpm > 160 && wpm <= 180)) pacingScore = 10;
+    else pacingScore = 5;
   }
-  pauseQualityScore = Math.max(0, pauseQualityScore);
 
   const raw = (transcript || '').trim();
   const lastWord = raw.split(/\s+/).pop()?.toLowerCase().replace(/[^\w]/g, '') || '';
@@ -34,9 +34,9 @@ function serverDeterministicScore(transcript, pauseData) {
 
   return {
     fillerWordScore,
-    pauseQualityScore,
+    pacingScore,
     completionScore,
-    total: fillerWordScore + pauseQualityScore + completionScore,
+    total: fillerWordScore + pacingScore + completionScore,
   };
 }
 
@@ -59,11 +59,11 @@ function parseBody(body) {
 }
 
 const SCHEMA_SPEC = `{
-  "contextFit": {"score": <0-10>, "reason": "<one sentence>"},
+  "contextFit": {"score": <0-5>, "reason": "<one sentence>"},
   "naturalWordUsage": {"score": <0-15>, "reason": "<one sentence>"},
   "clarityOfThought": {"score": <0-20>, "reason": "<one sentence>"},
   "structure": {"score": <0-15>, "reason": "<one sentence>"},
-  "authority": {"score": <0-10>, "reason": "<one sentence>"},
+  "authority": {"score": <0-5>, "reason": "<one sentence>"},
   "softFillerClassification": [{"position": <int>, "word": "<word>", "isFiller": <true|false>}],
   "feedbackPoints": [{"type": "strength"|"improvement", "message": "<concise sentence under 100 chars>"}],
   "oneLineSummary": "<15 words or fewer>",
@@ -93,13 +93,13 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid JSON body' });
   }
 
-  const { transcript, word, context, contextCategory, pauseData, softFillerFlags } = body;
+  const { transcript, word, context, contextCategory, transcriptDuration, softFillerFlags } = body;
 
   if (!transcript || !word) {
     return res.status(400).json({ error: 'Missing transcript or word' });
   }
 
-  const det = serverDeterministicScore(transcript, pauseData);
+  const det = serverDeterministicScore(transcript, transcriptDuration);
   const catInstruction = categoryInstruction(contextCategory);
 
   const softFillerSection = Array.isArray(softFillerFlags) && softFillerFlags.length > 0
@@ -114,13 +114,13 @@ Context given to the speaker: "${context || 'none provided'}"
 
 Transcript: "${transcript}"
 ${softFillerSection}
-Do NOT count hard fillers (um, uh, erm, hmm, ah) — those are scored separately. Score only the five qualitative dimensions below. Score strictly; do not inflate. Average real speech scores 10-14 across the five dimensions.
+Do NOT count hard fillers (um, uh, erm, hmm, ah) — those are scored separately. Score only the five qualitative dimensions below. Score strictly; do not inflate. If soft fillers were confirmed above, let them reduce clarityOfThought or structure as appropriate — do not apply a separate deduction.
 
-contextFit (0-10): how well the response suits the given context and scenario
+contextFit (0-5): how well the response suits the given context and scenario
 naturalWordUsage (0-15): how organically "${word}" was used — penalise forced or mechanical use
 clarityOfThought (0-20): coherence and ease of understanding — penalise rambling or contradictions
 structure (0-15): logical flow, opening and closing — penalise unfinished or disorganised thoughts
-authority (0-10): confidence and command of the topic — penalise hedging or uncertain delivery
+authority (0-5): confidence and command of the topic — penalise hedging or uncertain delivery
 
 feedbackPoints: exactly 2-3 items mixing strengths and improvements; be specific to the actual content.
 oneLineSummary: a single plain-language summary of the response quality, 15 words or fewer.
@@ -175,11 +175,11 @@ ${SCHEMA_SPEC}`;
 
   const clamp = (v, min, max) => Math.min(max, Math.max(min, Math.round(Number(v) || 0)));
 
-  const contextFitScore       = clamp(llm.contextFit?.score,        0, 10);
+  const contextFitScore       = clamp(llm.contextFit?.score,        0,  5);
   const naturalWordUsageScore = clamp(llm.naturalWordUsage?.score,   0, 15);
   const clarityScore          = clamp(llm.clarityOfThought?.score,   0, 20);
   const structureScore        = clamp(llm.structure?.score,          0, 15);
-  const authorityScore        = clamp(llm.authority?.score,          0, 10);
+  const authorityScore        = clamp(llm.authority?.score,          0,  5);
 
   const feedbackPoints = Array.isArray(llm.feedbackPoints)
     ? llm.feedbackPoints
@@ -206,14 +206,13 @@ ${SCHEMA_SPEC}`;
   const oneLineSummary      = typeof llm.oneLineSummary === 'string'      ? llm.oneLineSummary.trim()      : '';
   const suggestedRetryFocus = typeof llm.suggestedRetryFocus === 'string' ? llm.suggestedRetryFocus.trim() : '';
 
-  // Raw max: 55 (deterministic) + 70 (LLM) = 125
-  const llmTotal   = contextFitScore + naturalWordUsageScore + clarityScore + structureScore + authorityScore;
-  const rawTotal   = det.total + llmTotal;
-  const totalScore = Math.min(100, Math.round(rawTotal / 125 * 100));
+  // Max: det(45) + LLM excl. contextFit(55) = 100; contextFit reported but not in total
+  const totalScore = det.fillerWordScore + det.pacingScore + det.completionScore
+    + clarityScore + naturalWordUsageScore + structureScore + authorityScore;
 
   return res.status(200).json({
     fillerWordScore:          det.fillerWordScore,
-    pauseQualityScore:        det.pauseQualityScore,
+    pacingScore:              det.pacingScore,
     sentenceCompletionScore:  det.completionScore,
     contextFitScore,
     naturalWordUsageScore,

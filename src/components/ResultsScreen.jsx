@@ -13,19 +13,20 @@ const DIFFICULTY_STYLES = {
   hard: 'bg-red-bg text-red-text',
 };
 
-function scoreColor(n) {
-  if (n >= 75) return 'text-green-text';
-  if (n >= 50) return 'text-amber-text';
+function scoreColor(n, maxScore = 100) {
+  const pct = n / maxScore;
+  if (pct >= 0.75) return 'text-green-text';
+  if (pct >= 0.5)  return 'text-amber-text';
   return 'text-red-text';
 }
 
 function deterministicFeedback(scores) {
   const points = [];
-  if (scores.fillerWordScore < 20) {
+  if (scores.fillerWordScore < 14) {
     points.push({ type: 'improvement', message: 'Reduce filler words — aim for fewer ums and uhs' });
   }
-  if (scores.pauseQualityScore < 14) {
-    points.push({ type: 'improvement', message: 'Work on your pacing — avoid long mid-sentence pauses' });
+  if (scores.pacingScore < 10) {
+    points.push({ type: 'improvement', message: 'Work on your pacing — aim for 110–160 words per minute' });
   }
   if (points.length === 0) {
     points.push({ type: 'strength', message: 'Good delivery — clean pacing and minimal filler words' });
@@ -33,31 +34,32 @@ function deterministicFeedback(scores) {
   return points;
 }
 
-function ScoreBreakdownBar({ scores, llmData, llmLoading }) {
+function ScoreBreakdownBar({ scores, llmData, llmLoading, llmError }) {
+  const clarityWordUse = (llmData?.clarityScore ?? 0) + (llmData?.naturalWordUsageScore ?? 0);
+  const structureAuth  = (llmData?.structureScore ?? 0) + (llmData?.authorityScore ?? 0);
+
   const segments = [
-    { label: 'Fluency',    score: scores.fillerWordScore,         max: 30, trackClass: 'bg-red-bg' },
-    { label: 'Pacing',     score: scores.pauseQualityScore,       max: 15, trackClass: 'bg-amber-bg' },
-    { label: 'Completion', score: scores.sentenceCompletionScore, max: 10, trackClass: 'bg-surface-raised' },
-    { label: 'Context',    score: llmData?.contextFitScore ?? 0,       max: 10, trackClass: 'bg-surface-raised', loading: llmLoading },
-    { label: 'Word Use',   score: llmData?.naturalWordUsageScore ?? 0, max: 15, trackClass: 'bg-surface-raised', loading: llmLoading },
-    { label: 'Clarity',    score: llmData?.clarityScore ?? 0,          max: 20, trackClass: 'bg-surface-raised', loading: llmLoading },
-    { label: 'Structure',  score: llmData?.structureScore ?? 0,        max: 15, trackClass: 'bg-surface-raised', loading: llmLoading },
-    { label: 'Authority',  score: llmData?.authorityScore ?? 0,        max: 10, trackClass: 'bg-surface-raised', loading: llmLoading },
+    { label: 'Filler',              score: scores.fillerWordScore,          max: 20, trackClass: 'bg-red-bg' },
+    { label: 'Pacing',              score: scores.pacingScore,              max: 15, trackClass: 'bg-amber-bg' },
+    { label: 'Completion',          score: scores.sentenceCompletionScore,  max: 10, trackClass: 'bg-surface-raised' },
+    { label: 'Clarity + Word use',  score: clarityWordUse,                  max: 35, trackClass: 'bg-surface-raised', loading: llmLoading, failed: llmError },
+    { label: 'Structure + Authority', score: structureAuth,                 max: 20, trackClass: 'bg-surface-raised', loading: llmLoading, failed: llmError },
   ];
 
-  function fillClass(score, max, loading) {
+  function fillClass(score, max, loading, failed) {
     if (loading) return 'bg-border animate-pulse';
+    if (failed)  return 'bg-border';
     const pct = score / max;
     if (pct >= 0.75) return 'bg-green-mark';
-    if (pct >= 0.5) return 'bg-amber-mark';
+    if (pct >= 0.5)  return 'bg-amber-mark';
     return 'bg-red-mark';
   }
 
-  function labelColor(score, max, loading) {
-    if (loading) return 'text-text-muted';
+  function labelColor(score, max, loading, failed) {
+    if (loading || failed) return 'text-text-muted';
     const pct = score / max;
     if (pct >= 0.75) return 'text-green-text';
-    if (pct >= 0.5) return 'text-amber-text';
+    if (pct >= 0.5)  return 'text-amber-text';
     return 'text-red-text';
   }
 
@@ -71,8 +73,8 @@ function ScoreBreakdownBar({ scores, llmData, llmLoading }) {
             style={{ flex: `${seg.max} 0 0` }}
           >
             <div
-              className={`absolute inset-y-0 left-0 transition-all duration-700 ${fillClass(seg.score, seg.max, seg.loading)}`}
-              style={{ width: seg.loading ? '100%' : `${(seg.score / seg.max) * 100}%` }}
+              className={`absolute inset-y-0 left-0 transition-all duration-700 ${fillClass(seg.score, seg.max, seg.loading, seg.failed)}`}
+              style={{ width: (seg.loading || seg.failed) ? '100%' : `${(seg.score / seg.max) * 100}%` }}
             />
           </div>
         ))}
@@ -88,8 +90,8 @@ function ScoreBreakdownBar({ scores, llmData, llmLoading }) {
             <span className="text-caption text-text-muted truncate w-full text-center px-[2px]">
               {seg.label}
             </span>
-            <span className={`text-caption ${labelColor(seg.score, seg.max, seg.loading)}`}>
-              {seg.loading ? '–' : `${seg.score}/${seg.max}`}
+            <span className={`text-caption ${labelColor(seg.score, seg.max, seg.loading, seg.failed)}`}>
+              {seg.loading ? '–' : seg.failed ? '–' : `${seg.score}/${seg.max}`}
             </span>
           </div>
         ))}
@@ -117,9 +119,9 @@ export default function ResultsScreen({ onGoAgain }) {
   // Run deterministic scoring synchronously on mount — frontend layer per spec
   const det = useMemo(() => {
     const words = transcript?.words || [];
-    const scores = scoreDeterministic(words, volumeData);
+    const scores = scoreDeterministic(words, volumeData, transcript?.duration ?? 0);
     const deterministicTotal =
-      scores.fillerWordScore + scores.pauseQualityScore + scores.sentenceCompletionScore;
+      scores.fillerWordScore + scores.pacingScore + scores.sentenceCompletionScore;
 
     // Build word-index sets for transcript annotation
     const hardFillerIndices = new Set();
@@ -155,7 +157,7 @@ export default function ResultsScreen({ onGoAgain }) {
       word: word.word,
       context,
       contextCategory,
-      pauseData: det.scores.pauseAnnotations.filter(p => p.type !== 'neutral'),
+      transcriptDuration: transcript.duration ?? 0,
       softFillerFlags: det.scores.softFillerFlags,
     })
       .then(data => {
@@ -188,10 +190,11 @@ export default function ResultsScreen({ onGoAgain }) {
   }
 
   const llmLoading = llmStatus === 'loading';
-  // While LLM is pending, show the deterministic portion scaled to /100 as a rough live preview
-  const totalScore = llmStatus === 'done' && llmData?.totalScore != null
+  const llmError   = llmStatus === 'error';
+  const displayScore = llmStatus === 'done' && llmData?.totalScore != null
     ? llmData.totalScore
-    : Math.round(det.deterministicTotal / 125 * 100);
+    : det.deterministicTotal;
+  const totalScore = displayScore;
 
   // Read personal best before the save effect fires — correct for delta display
   const personalBest      = parseInt(localStorage.getItem('cadence_best_score') || '0', 10);
@@ -279,16 +282,21 @@ export default function ResultsScreen({ onGoAgain }) {
 
             {/* Score number */}
             <div className="flex items-baseline gap-[8px] mb-[4px]">
-              <span className={`text-display transition-colors duration-500 ${scoreColor(totalScore)}`}>
+              <span className={`text-display transition-colors duration-500 ${scoreColor(totalScore, llmStatus === 'done' ? 100 : 45)}`}>
                 {totalScore}
               </span>
-              <span className="text-heading-2 text-text-muted">/100</span>
+              {llmStatus === 'done' && (
+                <span className="text-heading-2 text-text-muted">/100</span>
+              )}
+              {llmError && (
+                <span className="text-heading-2 text-text-muted">/45</span>
+              )}
             </div>
 
             {/* Delta / loading / new best */}
             <div className="text-caption text-text-muted mb-[24px] min-h-[20px]">
               {llmLoading && 'Analysing word usage and clarity…'}
-              {llmStatus === 'error' && 'Analysis unavailable — deterministic score only'}
+              {llmError && 'Partial score — analysis unavailable'}
               {llmStatus === 'done' && isNewBest && (
                 <span className="text-green-text">📈 New personal best!</span>
               )}
@@ -302,6 +310,7 @@ export default function ResultsScreen({ onGoAgain }) {
               scores={det.scores}
               llmData={llmData}
               llmLoading={llmLoading}
+              llmError={llmError}
             />
           </div>
 
